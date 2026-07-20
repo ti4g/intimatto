@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<!-- viewport-fit=cover e o que faz env(safe-area-inset-*) valer alguma coisa no notch -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f6f4">
+<title>Intimatto Delles — Coleção Essence</title>
+<meta name="description" content="Roupa feminina e moda íntima em Palmas. Coleção Essence.">
+
+<!-- Preload so na display (Jost). Hanken carrega no fluxo normal. -->
+<link rel="preload" href="fonts/jost-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/jost-300.woff2" as="font" type="font/woff2" crossorigin>
+
+<!-- O poster e o LCP: ele pinta antes do video ter um frame decodificado. -->
+<link rel="preload" as="image" href="img/hero/essence-poster.webp" fetchpriority="high">
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <a class="marca" href="/">
+    <span class="marca__nome voz-peso">Intimatto</span>
+    <span class="marca__sub voz-ar">Delles</span>
+  </a>
+  <!-- So aparece no desktop: no celular os tres blocos nao cabem em 375px -->
+  <p class="header__local voz-ar">Palmas · TO</p>
+  <nav class="header__links" aria-label="Contato">
+    <a class="header__link voz-ar" href="https://instagram.com/intimattodelles"
+       target="_blank" rel="noopener">Instagram</a>
+    <span class="header__ponto" aria-hidden="true"></span>
+    <a class="header__link voz-ar" id="header-wpp" href="#"
+       target="_blank" rel="noopener">WhatsApp</a>
+  </nav>
+  <div class="fio" role="presentation"><span class="fio__traco"></span></div>
+</header>
+
+<main>
+  <!-- O video e da propria campanha da loja. Mudo, em loop, com poster: o iOS
+       so faz autoplay de video mudo, e em Modo de Baixo Consumo ele bloqueia
+       mesmo assim — nesse caso o poster e o que a cliente ve. Fica
+       aria-hidden porque nao carrega informacao alem do h1 ao lado. -->
+  <section class="hero" aria-labelledby="hero-titulo">
+    <div class="hero__media">
+      <video class="hero__video" id="hero-video"
+             autoplay muted loop playsinline preload="auto"
+             poster="img/hero/essence-poster.webp"
+             width="720" height="1280" aria-hidden="true" tabindex="-1">
+        <source src="img/hero/essence.mp4" type="video/mp4">
+      </video>
+    </div>
+    <!-- No celular isto pousa sobre o video (mesma celula do grid, com o
+         scrim por baixo). No desktop vai pra coluna ao lado, porque um video
+         9:16 sangrando numa tela larga viraria uma fatia. -->
+    <div class="hero__txt">
+      <!-- O fio vem antes do titulo: o ouro lidera o lockup em vez de
+           separar duas linhas de texto no meio. -->
+      <span class="hero__risco" aria-hidden="true"></span>
+      <h1 class="hero__titulo voz-ar" id="hero-titulo">Coleção Essence</h1>
+      <!-- PLACEHOLDER: a frase e da loja, nao minha. Trocar pela voz dela. -->
+      <p class="hero__frase">A essência de cada uma.</p>
+    </div>
+  </section>
+
+  <div class="fio" role="presentation"><span class="fio__traco"></span></div>
+
+  <section class="grade-secao" aria-label="Peças">
+    <ul class="grade" id="grade"></ul>
+  </section>
+</main>
+
+<footer class="rodape">
+  <img class="rodape__logo" src="img/logo/logo.jpg" width="1053" height="1053"
+       loading="lazy" decoding="async" alt="Intimatto Delles">
+  <nav class="rodape__links" aria-label="Contato">
+    <a class="rodape__link" href="https://instagram.com/intimattodelles"
+       target="_blank" rel="noopener">Instagram</a>
+    <a class="rodape__link" id="rodape-wpp" href="#"
+       target="_blank" rel="noopener">WhatsApp</a>
+  </nav>
+</footer>
+
+<dialog class="modal" id="modal" aria-labelledby="modal-nome">
+  <button class="modal__fechar" id="modal-fechar" type="button" aria-label="Fechar">
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false">
+      <path d="M1 1l16 16M17 1L1 17" fill="none" stroke="currentColor" stroke-width="1.25"/>
+    </svg>
+  </button>
+  <div class="modal__corpo">
+    <picture class="modal__foto-wrap" id="modal-foto-wrap"></picture>
+    <div class="modal__info">
+      <h2 class="modal__nome" id="modal-nome"></h2>
+      <p class="modal__preco" id="modal-preco"></p>
+      <div class="tamanhos">
+        <span class="tamanhos__label voz-ar" id="tamanhos-label">Tamanho</span>
+        <div class="tamanhos__opcoes" id="modal-tamanhos"
+             role="group" aria-labelledby="tamanhos-label"></div>
+      </div>
+      <a class="wpp" id="modal-wpp" href="#" target="_blank" rel="noopener">Falar no WhatsApp</a>
+    </div>
+  </div>
+</dialog>
+
+<script src="js/produtos.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

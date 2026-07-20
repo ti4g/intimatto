@@ -1,0 +1,640 @@
+/* ═══════════════════════════════════════════════════════════
+   INTIMATTO DELLES — piloto de vitrine
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Fontes ───────────────────────────────────────────────── */
+/* woff2 subset latin (cobre portugues: U+00C0–00FF tem a, e, o, c). */
+
+@font-face {
+  font-family: 'Jost';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../fonts/jost-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/jost-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/hanken-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/hanken-500.woff2') format('woff2');
+}
+
+/* ── Tokens ───────────────────────────────────────────────── */
+
+:root {
+  --luz: #f7f6f4;        /* chao da pagina. branco com um sopro de calor */
+  --branco: #ffffff;     /* superficie do modal. os cards nao tem superficie */
+  --tinta: #1a1a18;      /* tipografia */
+  --cinza: #726f69;      /* labels e texto secundario */
+  --fio: #dad6d0;        /* hairlines neutras */
+  --ouro: #b08a28;       /* fio, borda e preenchimento. nunca texto — ver nota */
+  --ouro-hover: #c49a2e; /* hover do botao. CLAREIA de proposito — ver nota */
+  --ouro-claro: #e6be64; /* so dentro do bloco preto (11,9:1 sobre #000) */
+  --preto: #000000;      /* exato. qualquer outro expoe a borda do JPG do logo */
+
+  /* O --cinza do documento original era #8A8781, que da 3,29:1 sobre --luz e
+     reprova em AA (precisa 4,5:1). #726F69 da 4,64:1 e mantem o cinza quente.
+
+     Sobre o dourado, o documento tinha a regra invertida. Ele proibia
+     "preenchimento" e liberava micro-caps douradas; medindo, e o contrario:
+
+       --ouro como TEXTO sobre --luz .... 2,99:1   reprova
+       --tinta como texto sobre --ouro .. 5,40:1   passa
+
+     O ouro nao pode ser a letra, mas pode ser o campo onde a letra pousa, e
+     pode ser fio, borda e ponto a vontade — decoracao nao tem exigencia de
+     contraste. E por isso que ele vive no botao, nos fios das pecas e no
+     bloco preto, e nunca como texto sobre papel.
+
+     Rodar tools/contraste.js antes de mexer em qualquer cor destas. */
+
+  --passo: clamp(1rem, 4vw, 1.75rem);   /* respiro lateral da pagina */
+  --folga: clamp(3rem, 9vw, 6rem);      /* respiro entre secoes */
+
+  --letra-ar: 0.32em;    /* voz ar: Jost 300 caps tracked */
+  --letra-peso: -0.01em; /* voz peso: Jost 600 caps apertado */
+
+  --curva: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Reset ────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--luz);
+  color: var(--tinta);
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+img { display: block; max-width: 100%; }
+picture { display: block; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; }
+
+:focus-visible {
+  outline: 2px solid var(--tinta);
+  outline-offset: 3px;
+}
+
+/* ── As tres vozes ────────────────────────────────────────── */
+
+.voz-peso {
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--letra-peso);
+}
+
+.voz-ar {
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: var(--letra-ar);
+}
+
+/* ── O fio ────────────────────────────────────────────────── */
+/* Herda a qualidade do logo (traco continuo, 1px, dourado) sem ser a
+   silhueta. Anima com transform: scaleX — o documento pedia
+   stroke-dashoffset, mas isso e propriedade de paint e briga com a
+   propria regra de "animacao so em transform e opacity". O resultado
+   visual de uma reta e identico e este nao repinta. */
+
+/* O fio se desenha no load por animacao de CSS, sem JS nenhum.
+
+   Duas razoes. A primeira e robustez: um elemento que nasce invisivel
+   esperando o JS revelar fica invisivel PRA SEMPRE se o JS falhar, e o fio
+   mora no HTML estatico, entao nao tem como o proprio script que o desenha
+   garantir que ele apareca. A segunda e que nesta pagina os dois fios estao
+   acima da dobra no celular (o hero tem 72dvh e o divisor vem logo abaixo) —
+   revelar por scroll seria teatro.
+
+   A caixa e o traco sao elementos separados porque scaleX(0) colapsa a caixa
+   pra largura zero, e ai nem a caixa nem nada dentro dela tem area. */
+
+.fio {
+  height: 1px;
+  overflow: hidden;
+}
+
+.fio__traco {
+  display: block;
+  height: 100%;
+  background: var(--ouro);
+  transform-origin: left center;
+  animation: fio-desenha 1.4s var(--curva) both;
+}
+
+@keyframes fio-desenha {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem var(--passo);
+  padding-top: calc(1.15rem + env(safe-area-inset-top));
+}
+
+.marca {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  text-decoration: none;
+  color: inherit;
+}
+
+.marca__nome {
+  font-size: clamp(1rem, 3.4vw, 1.25rem);
+  line-height: 1;
+}
+
+.marca__sub {
+  font-size: clamp(0.5rem, 1.5vw, 0.6rem);
+  line-height: 1;
+  color: var(--cinza);
+}
+
+/* No celular o local sai: wordmark + dois links ja ocupam quase os 343px
+   uteis de um 375, e apertar os tres deixaria o header pior, nao melhor. */
+.header__local {
+  display: none;
+  margin: 0;
+  font-size: 0.5625rem;
+  color: var(--cinza);
+}
+
+.header__links {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+}
+
+.header__link {
+  font-size: 0.625rem;
+  color: var(--cinza);
+  text-decoration: none;
+  transition: color 0.2s var(--curva);
+}
+.header__link:hover { color: var(--tinta); }
+
+/* O unico ouro do header fora do fio. Ponto, nao texto: sobre --luz o
+   --ouro da 2,97:1 e reprovaria em contraste como texto. */
+.header__ponto {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ouro);
+  transform: translateY(-2px);
+}
+
+.header .fio {
+  position: absolute;
+  inset: auto 0 0 0;
+}
+
+@media (min-width: 48rem) {
+  .header__local { display: block; }
+}
+
+/* ── Hero ─────────────────────────────────────────────────── */
+
+.hero {
+  display: grid;
+  /* height e nao min-height: min-height nao torna a altura do grid definida,
+     entao a linha 1fr virava o tamanho do conteudo e o hero estourava os
+     72dvh. E minmax(0, 1fr) e nao 1fr, porque 1fr tem minimo automatico e
+     tambem nao encolhe abaixo do conteudo. */
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: 1fr;
+  height: 72dvh;
+}
+
+/* Video e texto na MESMA celula: e isso que os sobrepoe no celular sem
+   duplicar DOM. No desktop o texto muda de coluna e o scrim some. */
+.hero__media {
+  grid-row: 1;
+  grid-column: 1;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--fio);
+}
+
+.hero__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* O video e 9:16 (0,563) e a caixa fica perto de 0,72 no celular, entao o
+     cover corta altura. Ancorar no topo mantem cabeca e tronco e joga fora o
+     chao — o quadro ja terminava nas canelas dela mesmo. */
+  object-position: center top;
+}
+
+/* O estudio e claro demais pra tipografia branca pousar em cima sem ajuda.
+   O scrim so escurece o terco de baixo, onde o texto fica; o resto do video
+   continua limpo. */
+.hero__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgb(10 9 8 / 0.66) 0%,
+    rgb(10 9 8 / 0.3) 30%,
+    rgb(10 9 8 / 0) 60%
+  );
+  pointer-events: none;
+}
+
+.hero__txt {
+  grid-row: 1;
+  grid-column: 1;
+  align-self: end;
+  z-index: 1;
+  padding: 0 var(--passo) calc(1.6rem + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+  color: var(--branco);
+}
+
+.hero__titulo {
+  font-size: clamp(1.375rem, 6vw, 2rem);
+  line-height: 1;
+  margin: 0;
+}
+
+.hero__risco {
+  width: 3.5rem;
+  height: 1px;
+  background: var(--ouro-claro);
+}
+
+.hero__frase {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  max-width: 24ch;
+}
+
+@media (min-width: 48rem) {
+  .hero {
+    /* 0,55fr deixa a coluna do video perto de 0,78 num monitor comum: o mais
+       perto do 9:16 que da sem a coluna virar uma tira fina. */
+    grid-template-columns: minmax(0, 0.55fr) 1fr;
+    gap: var(--passo);
+  }
+  /* Sem video por baixo, o texto volta a ser tinta sobre papel e o scrim
+     nao tem funcao. */
+  .hero__media::after { display: none; }
+  .hero__txt {
+    grid-column: 2;
+    align-self: center;
+    padding: 0 var(--passo);
+    gap: 1rem;
+    color: var(--tinta);
+  }
+  .hero__titulo { font-size: clamp(2rem, 3.6vw, 2.75rem); }
+  .hero__risco { background: var(--ouro); }
+  .hero__frase { font-size: 0.9375rem; max-width: 28ch; color: var(--cinza); }
+}
+
+/* ── Grade ────────────────────────────────────────────────── */
+/* Sem superficie de card: a foto vai direto no papel. Um card branco
+   atras de uma foto bege sobre uma pagina off-white empilha tres
+   neutros quentes e a borda nao separa nada — so suja. */
+
+.grade-secao { padding: var(--folga) var(--passo); }
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.75rem, 3vw, 1.5rem) clamp(0.75rem, 2.5vw, 1.25rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 48rem) {
+  .grade { grid-template-columns: repeat(3, 1fr); }
+}
+
+.peca__botao {
+  display: block;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.peca__foto {
+  width: 100%;
+  /* height: auto e obrigatorio. Os atributos width/height do <img> viram
+     hints de CSS, e sem isto o height="1710" vence o aspect-ratio. */
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: var(--fio);
+  transition: opacity 0.4s var(--curva);
+}
+
+.peca__botao:hover .peca__foto { opacity: 0.88; }
+
+/* O fio dourado de cada peca. Decoracao nao tem exigencia de contraste, entao
+   e aqui que o ouro pode viver de verdade: 6 linhas na grade em vez de zero.
+   E a ideia de assinatura do documento — "o dourado e tinta em fio fino" —
+   virando sistema de fato, e nao um detalhe que ninguem ve. */
+.peca__legenda {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.65rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--ouro);
+}
+
+.peca__nome {
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.peca__preco {
+  font-size: 0.625rem;
+  color: var(--cinza);
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+/* ── Bloco preto ──────────────────────────────────────────── */
+/* O JPG do logo tem fundo preto, entao ele encaixa sem edicao. O bloco
+   e #000000 exato: qualquer outro preto expoe a borda do JPG. O blend
+   screen come os artefatos de compressao da borda. */
+
+.rodape {
+  background: var(--preto);
+  color: var(--branco);
+  padding: var(--folga) var(--passo);
+  padding-bottom: calc(var(--folga) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  text-align: center;
+}
+
+.rodape__logo {
+  width: clamp(9rem, 34vw, 12rem);
+  height: auto;
+  mix-blend-mode: screen;
+}
+
+.rodape__links {
+  display: flex;
+  gap: 1.75rem;
+}
+
+.rodape__link {
+  font-size: 0.625rem;
+  color: var(--ouro-claro);
+  text-decoration: none;
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: var(--letra-ar);
+}
+.rodape__link:hover { color: var(--branco); }
+.rodape__link:focus-visible { outline-color: var(--ouro-claro); }
+
+/* ── Modal ────────────────────────────────────────────────── */
+/* Nao e galeria: e o seletor de tamanho. Ha uma foto por peca, e e aqui
+   que a cliente escolhe P/M/G antes da mensagem do WhatsApp ser montada. */
+
+/* Trava o fundo enquanto o modal esta aberto.
+
+   Declarativo de proposito. Antes isto era JS: overflow='hidden' ao abrir e
+   overflow='' no evento 'close' do <dialog>. So que o 'close' nao e garantido
+   — em teste ele simplesmente nao disparou — e ai a cliente fechava o modal e
+   a pagina ficava presa sem rolar, que e pior do que o problema original.
+   Com :has() o estado segue o DOM: fechou por Esc, por clique no fundo ou por
+   close(), destrava sozinho. Nao ha evento pra perder nem estado pra desfazer. */
+body:has(.modal[open]) { overflow: hidden; }
+
+.modal {
+  border: 0;
+  padding: 0;
+  max-width: none;
+  max-height: none;
+  width: 100%;
+  height: 100%;
+  background: var(--branco);
+  color: var(--tinta);
+}
+
+.modal::backdrop { background: rgb(26 26 24 / 0.55); }
+
+.modal__corpo {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fora do .modal__corpo de proposito: ele rola, e o fechar tem que ficar
+   parado no canto. Ancorado no <dialog>, que o UA ja posiciona fixo. */
+.modal__fechar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  margin: 0.5rem;
+  padding: 0.7rem;
+  cursor: pointer;
+  background: var(--branco);
+  color: var(--tinta);
+  line-height: 0;
+  border-radius: 50%;
+}
+
+.modal__foto-wrap {
+  grid-row: 1;
+  grid-column: 1;
+  min-width: 0;
+}
+
+.modal__foto {
+  width: 100%;
+  height: auto; /* mesmo motivo do .peca__foto */
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: var(--fio);
+}
+
+.modal__info {
+  grid-row: 2;
+  grid-column: 1;
+  padding: 1.5rem var(--passo) calc(2rem + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.modal__nome {
+  font-size: 1.125rem;
+  font-weight: 500;
+  margin: 0;
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+}
+
+.modal__preco {
+  font-size: 0.75rem;
+  color: var(--cinza);
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  margin: 0;
+}
+
+.tamanhos { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.tamanhos__label {
+  font-size: 0.5625rem;
+  color: var(--cinza);
+}
+
+.tamanhos__opcoes { display: flex; gap: 0.5rem; }
+
+.tamanho {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--fio);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  transition: border-color 0.2s var(--curva), color 0.2s var(--curva);
+}
+
+.tamanho:hover { border-color: var(--cinza); }
+
+/* O tamanho escolhido se marca em ouro. A borda e decoracao, entao pode ser
+   dourada; o numero dentro dela continua tinta e mantem o contraste. */
+.tamanho[aria-pressed='true'] {
+  border-color: var(--ouro);
+  box-shadow: inset 0 0 0 1px var(--ouro); /* o peso do traco sem engordar a caixa */
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+/* O botao e O momento dourado da pagina: --tinta sobre --ouro da 5,40:1.
+
+   O hover CLAREIA, o que parece errado e nao e. O texto em cima e escuro,
+   entao escurecer o ouro aproxima os dois: #9a771f daria 4,18:1 e reprovaria.
+   E um bug que o Lighthouse nao pega, porque ele nao testa hover. */
+.wpp {
+  display: inline-block;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: var(--ouro);
+  color: var(--tinta);
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.6875rem;
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: var(--letra-ar);
+  text-indent: var(--letra-ar); /* compensa o tracking do ultimo caractere */
+  transition: background 0.2s var(--curva);
+}
+.wpp:hover { background: var(--ouro-hover); }
+
+@media (min-width: 48rem) {
+  .modal {
+    width: min(58rem, 92vw);
+    height: auto;
+    max-height: 88dvh;
+    margin: auto;
+  }
+  .modal__corpo {
+    grid-template-rows: 1fr;
+    grid-template-columns: 0.85fr 1fr;
+    overflow: hidden;
+  }
+  .modal__foto-wrap { grid-row: 1; height: 100%; }
+  .modal__foto { height: 100%; aspect-ratio: auto; }
+  .modal__info {
+    grid-row: 1;
+    grid-column: 2;
+    justify-content: center;
+    padding: 2.5rem;
+    overflow-y: auto;
+  }
+  .modal__fechar { background: none; margin: 0.75rem; }
+  .wpp { width: auto; }
+}
+
+/* ── Movimento ────────────────────────────────────────────── */
+/* So transform e opacity. Nada de listener de scroll. */
+
+.sobe {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.7s var(--curva), transform 0.7s var(--curva);
+}
+
+.sobe[data-visivel] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* O fio nasce desenhado e a grade nasce visivel, nao "aparecem rapido".
+     O animation-duration de 0,01ms acima ja levaria o fio ao fim por causa do
+     fill both, mas declarar aqui deixa a intencao explicita. */
+  .fio__traco { animation: none; transform: scaleX(1); }
+  .sobe { opacity: 1; transform: none; }
+}

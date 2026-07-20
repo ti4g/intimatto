@@ -1,0 +1,18 @@
+﻿node_modules/
+tools/node_modules/
+
+# Fontes originais e diagnosticos: ficam fora do deploy, mas NAO sao lixo.
+# Sao os mestres que permitem recortar tudo de novo quando a direcao muda —
+# e ja mudou duas vezes. O video da campanha sozinho tem 11,6 MB.
+_fontes/
+
+# Documento de design. Fica na maquina, nunca no repo: o repo e publico e o
+# Pages serve a pasta inteira, entao qualquer coisa aqui dentro vira URL no
+# site do cliente. A spec tem avaliacao franca do material dele e precos
+# marcados PLACEHOLDER — texto escrito pra equipe, nao pra ele ler.
+_docs/
+
+# OneDrive / Windows
+Thumbs.db
+desktop.ini
+.DS_Store
