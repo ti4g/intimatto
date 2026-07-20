@@ -75,4 +75,25 @@ const PRODUTOS = [
     tamanhos: ['P', 'M', 'G'],
     alt: 'Modelo veste polo preta canelada com calça jeans escura',
   },
+
+  /* Pecas sem foto ainda.
+
+     Sem 'slug' o card vira "Em breve": aparece no catalogo com nome e preco,
+     mas nao abre. No dia que a foto chegar, e so gerar a imagem e escrever o
+     slug aqui — nada mais muda.
+
+     Servem tambem pra loja cadastrar a colecao inteira antes do ensaio ficar
+     pronto, em vez de esperar tudo pra publicar qualquer coisa. */
+  {
+    nome: 'Biquíni Cortininha', // PLACEHOLDER — exemplo
+    preco: 'R$ 149,90', // PLACEHOLDER
+    categoria: 'praia',
+    tamanhos: ['P', 'M', 'G'],
+  },
+  {
+    nome: 'Saída de Praia Renda', // PLACEHOLDER — exemplo
+    preco: 'R$ 189,90', // PLACEHOLDER
+    categoria: 'praia',
+    tamanhos: ['Único'],
+  },
 ];

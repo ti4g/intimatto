@@ -207,6 +207,22 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .header__link:hover { color: var(--tinta); }
 
+/* Botao, nao link: abre um dialogo na propria pagina. Herda .header__link
+   pra ficar igual aos vizinhos. */
+.header__sacola {
+  cursor: pointer;
+  padding: 0;
+}
+
+.header__sacola__conta:not(:empty)::before {
+  content: ' ';
+}
+
+.header__sacola[data-cheia] {
+  color: var(--tinta);
+  font-weight: 600;
+}
+
 /* O unico ouro do header fora do fio. Ponto, nao texto: sobre --luz o
    --ouro da 2,97:1 e reprovaria em contraste como texto. */
 .header__ponto {
@@ -337,10 +353,19 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 .grade-secao { padding: var(--folga) var(--passo); }
 
+/* A contagem e informacao de verdade, nao enfeite: diz o tamanho do catalogo
+   antes da cliente rolar. Por isso e o unico rotulo da secao. */
+.grade-conta {
+  display: block;
+  margin: 0 0 1.5rem;
+  font-size: 0.5625rem;
+  color: var(--cinza);
+}
+
 .grade {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: clamp(0.75rem, 3vw, 1.5rem) clamp(0.75rem, 2.5vw, 1.25rem);
+  gap: clamp(1.5rem, 5vw, 2.5rem) clamp(0.75rem, 2.5vw, 1.25rem);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -358,6 +383,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   cursor: pointer;
 }
 
+/* O <picture> vira a moldura fixa por onde a foto se move no hover. Sem o
+   overflow aqui a foto cresceria por cima das vizinhas. */
+.peca__botao picture,
+.peca__vazia__moldura {
+  overflow: hidden;
+  background: var(--fio);
+}
+
 .peca__foto {
   width: 100%;
   /* height: auto e obrigatorio. Os atributos width/height do <img> viram
@@ -365,30 +398,57 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   height: auto;
   aspect-ratio: 4 / 5;
   object-fit: cover;
-  background: var(--fio);
-  transition: opacity 0.4s var(--curva);
+  /* Nasce invisivel e aparece quando o arquivo termina de baixar, senao a
+     cliente ve o campo cinza e um estalo quando a foto entra. */
+  opacity: 0;
+  transition: opacity 0.5s var(--curva), transform 0.7s var(--curva);
 }
 
-.peca__botao:hover .peca__foto { opacity: 0.88; }
+.peca__foto[data-carregada] { opacity: 1; }
+
+/* Movimento de lookbook: a foto se move dentro de uma moldura parada. */
+.peca__botao:hover .peca__foto[data-carregada],
+.peca__botao:focus-visible .peca__foto[data-carregada] {
+  transform: scale(1.04);
+}
 
 /* O fio dourado de cada peca. Decoracao nao tem exigencia de contraste, entao
    e aqui que o ouro pode viver de verdade: 6 linhas na grade em vez de zero.
-   E a ideia de assinatura do documento — "o dourado e tinta em fio fino" —
-   virando sistema de fato, e nao um detalhe que ninguem ve. */
+
+   Ele se desenha quando a peca entra na tela, da esquerda pra direita, com a
+   mesma curva do fio do topo. E o gesto do logo repetindo pela pagina: rolar
+   a grade vira uma sequencia de tracos se desenhando, em vez de seis riscos
+   parados. Por isso e ::before com scaleX, e nao um border-top. */
 .peca__legenda {
+  position: relative;
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-top: 0.65rem;
-  padding-top: 0.6rem;
-  border-top: 1px solid var(--ouro);
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.7rem;
+  padding-top: 0.65rem;
 }
 
+.peca__legenda::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: var(--ouro);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.9s var(--curva) 0.1s;
+}
+
+.peca[data-visivel] .peca__legenda::before { transform: scaleX(1); }
+
+/* Nome e preco empilhados, nao espalhados nas pontas. Com nome de duas
+   palavras — "Conjunto Pantalona Marrom" — o space-between quebrava o nome
+   em duas linhas e deixava o preco boiando no canto. */
 .peca__nome {
   font-size: 0.75rem;
   font-weight: 500;
   margin: 0;
+  line-height: 1.3;
 }
 
 .peca__preco {
@@ -399,6 +459,25 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   letter-spacing: 0.12em;
   white-space: nowrap;
 }
+
+/* ── Peca sem foto ────────────────────────────────────────── */
+/* Some sozinha quando a foto chegar: quem decide e a presenca do arquivo,
+   nao uma marcacao manual que alguem esqueceria de tirar. */
+
+.peca__vazia__moldura {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 5;
+  background: var(--luz);
+  box-shadow: inset 0 0 0 1px var(--fio);
+}
+
+.peca__vazia__selo {
+  font-size: 0.5625rem;
+  color: var(--cinza);
+}
+
+.peca--vazia .peca__legenda::before { background: var(--fio); }
 
 /* ── Bloco preto ──────────────────────────────────────────── */
 /* O JPG do logo tem fundo preto, entao ele encaixa sem edicao. O bloco
@@ -444,6 +523,142 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* Nao e galeria: e o seletor de tamanho. Ha uma foto por peca, e e aqui
    que a cliente escolhe P/M/G antes da mensagem do WhatsApp ser montada. */
 
+/* ── Sacola ───────────────────────────────────────────────── */
+/* Painel que desliza da direita. Sem pagamento, sem estoque: ela junta as
+   pecas e monta a mensagem do WhatsApp com tudo escrito. */
+
+.sacola {
+  border: 0;
+  padding: 0;
+  background: var(--branco);
+  color: var(--tinta);
+  width: min(26rem, 100%);
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  /* Encostada na direita em vez de centralizada: o <dialog> centraliza por
+     padrao, e margin sozinho nao vence isso. */
+  margin: 0 0 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sacola::backdrop { background: rgb(26 26 24 / 0.55); }
+
+.sacola__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem var(--passo);
+  padding-top: calc(1.15rem + env(safe-area-inset-top));
+  border-bottom: 1px solid var(--fio);
+}
+
+.sacola__titulo {
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.sacola__corpo {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 var(--passo);
+}
+
+.sacola__vazia {
+  padding: 3rem 0;
+  text-align: center;
+  color: var(--cinza);
+  font-size: 0.875rem;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr auto;
+  gap: 0.9rem;
+  align-items: start;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--fio);
+}
+
+.item__foto {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: var(--fio);
+}
+
+.item__nome {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin: 0 0 0.2rem;
+  line-height: 1.3;
+}
+
+.item__meta {
+  margin: 0;
+  font-size: 0.625rem;
+  color: var(--cinza);
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+}
+
+/* 2,75rem de alvo: abaixo disso o dedo erra e a cliente tira a peca errada. */
+.item__tirar {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  margin: -0.6rem -0.6rem 0 0;
+  cursor: pointer;
+  color: var(--cinza);
+  line-height: 0;
+  display: grid;
+  place-items: center;
+}
+.item__tirar:hover { color: var(--tinta); }
+
+.sacola__pe {
+  padding: 1.25rem var(--passo);
+  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--fio);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.sacola__pe[hidden] { display: none; }
+
+.sacola__total {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.sacola__total span:last-child {
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+}
+
+/* Confirmacao de que a peca entrou, no lugar onde o olho ja esta. Sem isto a
+   cliente clica e nada visivel acontece, entao ela clica de novo. */
+.modal__aviso {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 0.6875rem;
+  color: var(--cinza);
+  opacity: 0;
+  transition: opacity 0.25s var(--curva);
+}
+
+.modal__aviso[data-visivel] { opacity: 1; }
+
 /* Trava o fundo enquanto o modal esta aberto.
 
    Declarativo de proposito. Antes isto era JS: overflow='hidden' ao abrir e
@@ -452,7 +667,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    a pagina ficava presa sem rolar, que e pior do que o problema original.
    Com :has() o estado segue o DOM: fechou por Esc, por clique no fundo ou por
    close(), destrava sozinho. Nao ha evento pra perder nem estado pra desfazer. */
-body:has(.modal[open]) { overflow: hidden; }
+body:has(.modal[open]), body:has(.sacola[open]) { overflow: hidden; }
 
 .modal {
   border: 0;
@@ -615,10 +830,16 @@ body:has(.modal[open]) { overflow: hidden; }
 /* ── Movimento ────────────────────────────────────────────── */
 /* So transform e opacity. Nada de listener de scroll. */
 
+/* --i e o indice do card, posto pelo app.js. Escalona a entrada dentro da
+   fileira pra grade nascer em cascata, nao em bloco. O modulo 3 zera o atraso
+   a cada fileira: sem ele a ultima peca de um catalogo de 80 esperaria
+   4 segundos pra aparecer. */
 .sobe {
   opacity: 0;
   transform: translateY(12px);
-  transition: opacity 0.7s var(--curva), transform 0.7s var(--curva);
+  transition:
+    opacity 0.7s var(--curva) calc(var(--i, 0) * 70ms),
+    transform 0.7s var(--curva) calc(var(--i, 0) * 70ms);
 }
 
 .sobe[data-visivel] {
