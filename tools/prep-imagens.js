@@ -26,7 +26,8 @@ const fs = require('fs');
 
 const RAIZ = path.join(__dirname, '..');
 const FONTES = path.join(RAIZ, '_fontes');
-const SAIDA = path.join(RAIZ, 'img', 'produtos');
+// site/ e a unica pasta publicada. Ferramenta e fonte ficam de fora dela.
+const SAIDA = path.join(RAIZ, 'site', 'img', 'produtos');
 
 const LARGURAS = [400, 800, 960];
 

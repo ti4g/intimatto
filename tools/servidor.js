@@ -20,7 +20,9 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const RAIZ = path.join(__dirname, '..');
+// Serve site/, que e exatamente o que a Cloudflare publica. Assim o que voce
+// ve aqui e o que vai pro ar — ferramenta e fonte nao entram nem por engano.
+const RAIZ = path.join(__dirname, '..', 'site');
 const PORTA = Number(process.argv[2]) || 5173;
 
 const TIPOS = {

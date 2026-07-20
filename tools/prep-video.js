@@ -25,7 +25,8 @@ const fs = require('fs');
 
 const RAIZ = path.join(__dirname, '..');
 const FONTE = path.join(RAIZ, '_fontes', 'campanha-essence.mp4');
-const SAIDA = path.join(RAIZ, 'img', 'hero');
+// site/ e a unica pasta publicada. Ferramenta e fonte ficam de fora dela.
+const SAIDA = path.join(RAIZ, 'site', 'img', 'hero');
 
 const INICIO = 22.43;
 const DURACAO = 4.87;

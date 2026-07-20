@@ -10,7 +10,7 @@ const LUZ = { r: 0xf7, g: 0xf6, b: 0xf4 };
 const RECORTE = { left: 20, top: 20, width: 240, height: 240 };
 
 async function medir(arquivo) {
-  const { data } = await sharp(path.join(__dirname, '..', 'img', 'hero', arquivo))
+  const { data } = await sharp(path.join(__dirname, '..', 'site', 'img', 'hero', arquivo))
     .extract(RECORTE)
     .resize(1, 1, { fit: 'fill' })
     .raw()
