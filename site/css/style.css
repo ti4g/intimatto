@@ -209,19 +209,92 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* Botao, nao link: abre um dialogo na propria pagina. Herda .header__link
    pra ficar igual aos vizinhos. */
-.header__sacola {
+.header__provador {
   cursor: pointer;
   padding: 0;
+  white-space: nowrap;
 }
 
-.header__sacola__conta:not(:empty)::before {
-  content: ' ';
-}
+/* Contagem como campo dourado, nao como "(n)" em texto.
 
-.header__sacola[data-cheia] {
+   Duas razoes. A regra do projeto: --ouro nao pode ser letra (2,99:1) mas pode
+   ser campo com --tinta em cima (5,40:1). E espaco: "(1)" com tracking de
+   0,32em custa ~33px, o disco custa ~23px — e a 320px o header estourava 16px
+   pra fora da tela, com a contagem cortada na borda. */
+.header__provador__conta:empty { display: none; }
+
+.header__provador__conta {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.3em;
+  height: 1.3em;
+  margin-left: 0.45em;
+  padding: 0 0.3em;
+  border-radius: 999px;
+  background: var(--ouro);
   color: var(--tinta);
+  font-size: 0.5625rem;
   font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1;
+  transform: translateY(-0.05em);
 }
+
+/* Nunca comprime: e a saida da pagina. Quem cede espaco e a marca. */
+.header__links { flex-shrink: 0; }
+.marca { min-width: 0; }
+
+/* ── Header sobre o video (celular) ───────────────────────── */
+/* Sem isto a tela le como tres faixas horizontais empilhadas: banda creme,
+   video, banda creme. O video vira um retangulo no meio de uma pagina em vez
+   de ser a pagina. Tirando o header do fluxo, a imagem comeca no pixel zero
+   e a marca passa a viver dentro da cena.
+
+   So no celular: no desktop o video ja fica em coluna ao lado do texto, e um
+   header por cima nao teria imagem embaixo pra flutuar. */
+
+@media (max-width: 47.999rem) {
+  .header {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 5;
+  }
+
+  .marca__nome,
+  .marca__sub,
+  .header__link {
+    color: var(--branco);
+  }
+
+  .header__link:hover { color: var(--ouro-claro); }
+  .header__ponto { background: var(--ouro-claro); }
+  .header__provador__conta { background: var(--ouro-claro); }
+  :focus-visible { outline-color: var(--branco); }
+
+  /* O fio do header sai: sobre a foto ele vira risco solto, e o unico
+     divisor que carrega significado e o que separa hero de grade. */
+  .header .fio { display: none; }
+
+  /* No celular quem leva ao provador e a prateleira fixa. Tirar o botao
+     daqui alivia o topo — a 320px os tres blocos estouravam a tela. */
+  .header__provador { display: none; }
+
+  /* O header flutua sobre o hero, entao a pagina comeca no video. */
+  main { padding-top: 0; }
+}
+
+/* ── Sem JavaScript ───────────────────────────────────────── */
+
+.semjs {
+  margin: 0;
+  padding: 1rem var(--passo);
+  background: var(--tinta);
+  color: var(--luz);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+.semjs a { color: var(--ouro-claro); }
 
 /* O unico ouro do header fora do fio. Ponto, nao texto: sobre --luz o
    --ouro da 2,97:1 e reprovaria em contraste como texto. */
@@ -277,18 +350,26 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 
 /* O estudio e claro demais pra tipografia branca pousar em cima sem ajuda.
-   O scrim so escurece o terco de baixo, onde o texto fica; o resto do video
-   continua limpo. */
+   Dois scrims, um em cada ponta: o de cima carrega o header que agora flutua
+   sobre a imagem, o de baixo carrega o titulo. O miolo do video — onde a
+   roupa esta — fica limpo, que e o que importa numa vitrine. */
 .hero__media::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top,
-    rgb(10 9 8 / 0.66) 0%,
-    rgb(10 9 8 / 0.3) 30%,
-    rgb(10 9 8 / 0) 60%
-  );
+  background:
+    linear-gradient(
+      to bottom,
+      rgb(10 9 8 / 0.58) 0%,
+      rgb(10 9 8 / 0.22) 12%,
+      rgb(10 9 8 / 0) 26%
+    ),
+    linear-gradient(
+      to top,
+      rgb(10 9 8 / 0.66) 0%,
+      rgb(10 9 8 / 0.3) 30%,
+      rgb(10 9 8 / 0) 60%
+    );
   pointer-events: none;
 }
 
@@ -305,10 +386,25 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   color: var(--branco);
 }
 
+/* O lockup do titulo: rotulo pequeno na voz de ar, nome grande na voz de
+   peso. Antes era uma linha so em Jost 300 com tracking de 0,32em — a
+   configuracao de leveza maxima do sistema, que em corpo pequeno vira
+   textura e le como legenda. */
 .hero__titulo {
-  font-size: clamp(1.375rem, 6vw, 2rem);
-  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
   margin: 0;
+}
+
+.hero__titulo__rotulo {
+  font-size: 0.625rem;
+  line-height: 1;
+}
+
+.hero__titulo__nome {
+  font-size: clamp(2.5rem, 13vw, 3.75rem);
+  line-height: 0.9;
 }
 
 .hero__risco {
@@ -341,7 +437,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     gap: 1rem;
     color: var(--tinta);
   }
-  .hero__titulo { font-size: clamp(2rem, 3.6vw, 2.75rem); }
+  .hero__titulo__nome { font-size: clamp(2.75rem, 5vw, 4rem); }
   .hero__risco { background: var(--ouro); }
   .hero__frase { font-size: 0.9375rem; max-width: 28ch; color: var(--cinza); }
 }
@@ -351,13 +447,21 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    atras de uma foto bege sobre uma pagina off-white empilha tres
    neutros quentes e a borda nao separa nada — so suja. */
 
-.grade-secao { padding: var(--folga) var(--passo); }
+/* O respiro de cima e menor que o de baixo de proposito.
+
+   Com --folga nos dois lados sobrava quase meia tela de papel entre o video e
+   a primeira foto no celular: depois do hero, o vazio. Encurtando o topo, as
+   duas primeiras fotos espiam na dobra — e ai rolar deixa de ser fe e vira
+   curiosidade. O respiro de baixo continua cheio, separando do bloco preto. */
+.grade-secao {
+  padding: clamp(1.5rem, 5vw, 3rem) var(--passo) var(--folga);
+}
 
 /* A contagem e informacao de verdade, nao enfeite: diz o tamanho do catalogo
    antes da cliente rolar. Por isso e o unico rotulo da secao. */
 .grade-conta {
   display: block;
-  margin: 0 0 1.5rem;
+  margin: 0 0 1rem;
   font-size: 0.5625rem;
   color: var(--cinza);
 }
@@ -523,11 +627,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* Nao e galeria: e o seletor de tamanho. Ha uma foto por peca, e e aqui
    que a cliente escolhe P/M/G antes da mensagem do WhatsApp ser montada. */
 
-/* ── Sacola ───────────────────────────────────────────────── */
-/* Painel que desliza da direita. Sem pagamento, sem estoque: ela junta as
-   pecas e monta a mensagem do WhatsApp com tudo escrito. */
+/* ── Provador ─────────────────────────────────────────────── */
+/* Painel com as pecas separadas, aberto pela prateleira do rodape.
 
-.sacola {
+   Nao e carrinho, e por isso nao se chama sacola: nao ha pagamento, estoque
+   nem checkout. E uma lista de pecas sobre as quais ela vai conversar — a
+   metafora de e-commerce era o que fazia a tela parecer generica. */
+
+.provador {
   border: 0;
   padding: 0;
   background: var(--branco);
@@ -543,9 +650,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   flex-direction: column;
 }
 
-.sacola::backdrop { background: rgb(26 26 24 / 0.55); }
+.provador::backdrop { background: rgb(26 26 24 / 0.55); }
 
-.sacola__topo {
+.provador__topo {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -555,32 +662,44 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   border-bottom: 1px solid var(--fio);
 }
 
-.sacola__titulo {
+.provador__titulo {
   font-size: 0.75rem;
   margin: 0;
 }
 
-.sacola__corpo {
+.provador__corpo {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: 0 var(--passo);
 }
 
-.sacola__vazia {
+.provador__vazia {
   padding: 3rem 0;
   text-align: center;
   color: var(--cinza);
   font-size: 0.875rem;
 }
 
+/* A foto e o produto. Em miniatura de 3,5rem ao lado de texto isto virava
+   recibo; no tamanho de verdade o provador vira a pagina de lookbook que ela
+   montou. As larguras 400/800/1200 ja existem. */
 .item {
   display: grid;
-  grid-template-columns: 3.5rem 1fr auto;
-  gap: 0.9rem;
+  grid-template-columns: 6rem 1fr auto;
+  gap: 1rem;
   align-items: start;
-  padding: 1.1rem 0;
+  padding: 1.25rem 0;
   border-bottom: 1px solid var(--fio);
+}
+
+/* A foto abre a peca de novo. Depois de separar quatro coisas, a cliente
+   esquece qual era qual — e a foto e justamente o que ela quer rever. */
+.item__ver {
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  overflow: hidden;
 }
 
 .item__foto {
@@ -589,6 +708,16 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   aspect-ratio: 4 / 5;
   object-fit: cover;
   background: var(--fio);
+  transition: transform 0.5s var(--curva);
+}
+
+.item__ver:hover .item__foto { transform: scale(1.05); }
+
+/* O icone nunca e o alvo do clique: sem isto o evento chega no <path> do SVG
+   e qualquer codigo que olhe pro alvo precisa saber subir ate o botao. */
+.modal__fechar svg,
+.item__tirar svg {
+  pointer-events: none;
 }
 
 .item__nome {
@@ -620,7 +749,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .item__tirar:hover { color: var(--tinta); }
 
-.sacola__pe {
+.provador__pe {
   padding: 1.25rem var(--passo);
   padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
   border-top: 1px solid var(--fio);
@@ -629,9 +758,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   gap: 0.9rem;
 }
 
-.sacola__pe[hidden] { display: none; }
+.provador__pe[hidden] { display: none; }
 
-.sacola__total {
+.provador__total {
   margin: 0;
   display: flex;
   justify-content: space-between;
@@ -640,7 +769,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   font-weight: 500;
 }
 
-.sacola__total span:last-child {
+.provador__total span:last-child {
   font-family: 'Jost', system-ui, sans-serif;
   font-weight: 300;
   letter-spacing: 0.1em;
@@ -659,6 +788,81 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 .modal__aviso[data-visivel] { opacity: 1; }
 
+/* ── A prateleira ─────────────────────────────────────────── */
+/* Faixa fixa no rodape com as pecas separadas, sempre a vista.
+
+   Existe porque o header nao acompanha a rolagem: quem escolhia uma peca no
+   fim do catalogo tinha que subir a pagina inteira pra achar o provador. Com
+   8 pecas ja incomoda; com 40 vira desistencia. E, de brinde, ela mostra o
+   que foi separado sem precisar abrir nada. */
+
+.prateleira {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 20;
+  background: var(--branco);
+  border-top: 1px solid var(--ouro);
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: prateleira-sobe 0.45s var(--curva) both;
+}
+
+.prateleira[hidden] { display: none; }
+
+@keyframes prateleira-sobe {
+  from { transform: translateY(100%); }
+  to   { transform: none; }
+}
+
+.prateleira__botao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.7rem var(--passo);
+  cursor: pointer;
+  text-align: left;
+}
+
+.prateleira__fotos {
+  display: flex;
+  align-items: center;
+}
+
+/* Sobrepostas como pecas no braco: ocupam pouco e leem como um conjunto,
+   nao como uma lista. */
+.prateleira__fotos img,
+.prateleira__mais {
+  width: 2.5rem;
+  height: 3.125rem;
+  object-fit: cover;
+  background: var(--fio);
+  border: 1px solid var(--branco);
+  margin-right: -0.55rem;
+}
+
+.prateleira__mais {
+  display: grid;
+  place-items: center;
+  background: var(--luz);
+  font-size: 0.625rem;
+  color: var(--cinza);
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+}
+
+.prateleira__acao {
+  font-size: 0.625rem;
+  color: var(--tinta);
+  white-space: nowrap;
+}
+
+/* O bloco preto cresce pra passar por baixo da prateleira. Sem isto o rodape
+   terminaria escondido atras dela e a pagina pareceria cortada. */
+body:has(.prateleira:not([hidden])) .rodape {
+  padding-bottom: calc(var(--folga) + 5rem + env(safe-area-inset-bottom));
+}
+
 /* Trava o fundo enquanto o modal esta aberto.
 
    Declarativo de proposito. Antes isto era JS: overflow='hidden' ao abrir e
@@ -667,7 +871,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    a pagina ficava presa sem rolar, que e pior do que o problema original.
    Com :has() o estado segue o DOM: fechou por Esc, por clique no fundo ou por
    close(), destrava sozinho. Nao ha evento pra perder nem estado pra desfazer. */
-body:has(.modal[open]), body:has(.sacola[open]) { overflow: hidden; }
+body:has(.modal[open]), body:has(.provador[open]) { overflow: hidden; }
 
 .modal {
   border: 0;
