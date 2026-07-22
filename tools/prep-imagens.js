@@ -67,9 +67,15 @@ const alvos = [
   { fonte: '_recortes/blusa-marinho.png',  slug: 'blusa-marinho',  posicao: 'top' },
 ];
 
-// Fonte pequena nao ganha nada sendo ampliada: 960 a partir de 450 e 2,1x de
-// borrao ocupando 100 KB. Melhor entregar o que existe e deixar o navegador
-// esticar, que e honesto no srcset.
+/* Fonte pequena nao ganha nada sendo ampliada: 960 a partir de 450 e 2,1x de
+   borrao ocupando 100 KB. Melhor entregar o que existe e deixar o navegador
+   esticar, que e honesto no srcset.
+
+   ATENCAO — isto tem um par no site/js/produtos.js. Toda peca que sai daqui
+   com LARGURAS_BAIXA precisa do campo `larguras: [400, 800]` la, senao o
+   srcset promete um -960 que nao existe: em tela densa o navegador pede esse
+   arquivo, leva 404, e como o <picture> nao cai pra proxima <source> a foto
+   simplesmente some. Ja aconteceu com estas tres. */
 const LARGURAS_BAIXA = [400, 800];
 
 // Teto da foto inteira. So carrega quando a cliente toca pra ver, entao pode

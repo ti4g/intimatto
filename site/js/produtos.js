@@ -21,6 +21,11 @@ const WHATSAPP = '5563991266674';
               entrar em poucas linhas depois
     tamanhos  varia peca a peca, por isso e campo e nao const global
     alt       descricao pra leitor de tela. Nao e opcional
+    larguras  OPCIONAL. So pra foto cuja fonte e pequena demais pra gerar 960.
+              Tem que bater com o que o tools/prep-imagens.js gerou de verdade:
+              se o srcset prometer um arquivo que nao existe, o navegador em
+              tela densa pede o 960, leva 404, e a foto some. Sem o campo, o
+              padrao e [400, 800, 960]
 
   A ordem e a ordem da grade: cor alternada pra nenhuma fileira ficar monotona
   (2 col no celular, 3 no desktop).
@@ -66,6 +71,7 @@ const PRODUTOS = [
     categoria: 'roupa',
     tamanhos: ['36', '38', '40', '42'], // PLACEHOLDER
     alt: 'Modelo veste calça flare vinho de alfaiataria com blusa preta',
+    larguras: [400, 800], // recortada da colagem: fonte tem ~480px, nao ha 960
   },
   {
     slug: 'conjunto-vinho',
@@ -74,6 +80,7 @@ const PRODUTOS = [
     categoria: 'roupa',
     tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
     alt: 'Modelo veste conjunto vinho de colete alfaiataria e calça reta',
+    larguras: [400, 800], // recortada da colagem: fonte tem ~450px, nao ha 960
   },
   {
     slug: 'blusa-marinho',
@@ -82,6 +89,7 @@ const PRODUTOS = [
     categoria: 'roupa',
     tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
     alt: 'Modelo veste blusa marinho sem mangas com franzido lateral e calça jeans',
+    larguras: [400, 800], // recortada da colagem: fonte tem ~490px, nao ha 960
   },
   {
     slug: 'conjunto-marrom',

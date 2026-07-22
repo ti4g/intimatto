@@ -30,11 +30,20 @@ const Peca = (function () {
       { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
     ));
 
-  // Um lugar so monta srcset no site inteiro — grade, modal e as linhas do
-  // provador. Mexer nas larguras e mexer aqui.
+  /* Um lugar so monta srcset no site inteiro — grade, modal e as linhas do
+     provador. Mexer nas larguras e mexer aqui.
+
+     As larguras saem do produto quando ele declara: as fotos recortadas da
+     colagem tem ~450px de fonte e o prep-imagens.js nao gera 960 pra elas.
+     Prometer no srcset um arquivo que nao existe da 404, e o <picture> NAO cai
+     pra proxima <source> — o <img> dispara error e o card vira "Em breve".
+     Aparecia so em tela densa (celular com DPR 3 no modal, desktop Retina na
+     grade), que e justamente onde a cliente esta. */
   function fontes(slug, sizes) {
+    const p = PRODUTOS.find((x) => x.slug === slug);
+    const larguras = p?.larguras || GRID_LARGURAS;
     const srcset = (fmt) =>
-      GRID_LARGURAS.map((w) => `img/produtos/${slug}-${w}.${fmt} ${w}w`).join(', ');
+      larguras.map((w) => `img/produtos/${slug}-${w}.${fmt} ${w}w`).join(', ');
     return (
       `<source type="image/avif" srcset="${srcset('avif')}" sizes="${sizes}">` +
       `<source type="image/webp" srcset="${srcset('webp')}" sizes="${sizes}">`
