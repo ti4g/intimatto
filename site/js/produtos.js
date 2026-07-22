@@ -2,9 +2,9 @@
    PRODUTOS — a unica coisa que precisa ser editada pra trocar a vitrine.
    ═══════════════════════════════════════════════════════════ */
 
-// TROCAR: numero da loja. Hoje aponta pro Tiago.
+// Numero da loja: (63) 99126-6674.
 // Formato: DDI + DDD + numero, sem espacos, tracos ou parenteses.
-const WHATSAPP = '5563999614831';
+const WHATSAPP = '5563991266674';
 
 /*
   Cada item e nomeado pela peca principal da foto, nao pelo look inteiro.
@@ -54,10 +54,34 @@ const PRODUTOS = [
   {
     slug: 'vestido-preto',
     nome: 'Vestido Preto Midi',
-    preco: 'R$ 279,90', // PLACEHOLDER
+    preco: 'R$ 319,90', // confirmado pela loja
     categoria: 'roupa',
-    tamanhos: ['M', 'G'], // PLACEHOLDER — aqui pra provar que varia por peca
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER — a loja ainda nao passou
     alt: 'Modelo veste vestido preto midi de gola alta sem mangas',
+  },
+  {
+    slug: 'calca-vinho',
+    nome: 'Calça Flare Vinho',
+    preco: 'R$ 249,90', // confirmado pela loja
+    categoria: 'roupa',
+    tamanhos: ['36', '38', '40', '42'], // PLACEHOLDER
+    alt: 'Modelo veste calça flare vinho de alfaiataria com blusa preta',
+  },
+  {
+    slug: 'conjunto-vinho',
+    nome: 'Conjunto Colete e Calça Vinho',
+    preco: 'R$ 319,90', // confirmado pela loja
+    categoria: 'roupa',
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
+    alt: 'Modelo veste conjunto vinho de colete alfaiataria e calça reta',
+  },
+  {
+    slug: 'blusa-marinho',
+    nome: 'Blusa Marinho Franzida',
+    preco: 'R$ 109,90', // confirmado pela loja
+    categoria: 'roupa',
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
+    alt: 'Modelo veste blusa marinho sem mangas com franzido lateral e calça jeans',
   },
   {
     slug: 'conjunto-marrom',

@@ -223,6 +223,35 @@
       if (e.target === dlg) dlg.close();
     });
     document.getElementById('modal-add').addEventListener('click', levarAoProvador);
+    document.getElementById('modal-ampliar').addEventListener('click', verInteira);
+  }
+
+  /* ── Foto inteira ───────────────────────────────────────── */
+  /* O 4:5 da grade e o que faz as pecas lerem como conjunto, mas ele corta
+     ate um terco da foto — e o que sai e quase sempre a barra da peca. Em vez
+     de escolher entre grade bonita e peca inteira, a grade fica cortada e a
+     foto inteira mora um toque adiante. */
+
+  const inteiraDlg = document.getElementById('inteira');
+
+  function verInteira() {
+    if (!pecaAberta || !inteiraDlg) return;
+    const slug = esc(pecaAberta.slug);
+
+    // src so agora: o arquivo "-inteira" nao pesa no carregamento da pagina.
+    document.getElementById('inteira-wrap').innerHTML =
+      `<source type="image/avif" srcset="img/produtos/${slug}-inteira.avif">` +
+      `<source type="image/webp" srcset="img/produtos/${slug}-inteira.webp">` +
+      `<img class="inteira__foto" src="img/produtos/${slug}-inteira.webp"
+            decoding="async" alt="${esc(pecaAberta.alt)}">`;
+
+    inteiraDlg.showModal();
+  }
+
+  if (inteiraDlg) {
+    // Delegacao: fecha pelo X, pelo fundo ou tocando na propria foto — quem
+    // abriu com um toque espera fechar do mesmo jeito.
+    inteiraDlg.addEventListener('click', () => inteiraDlg.close());
   }
 
   /* ══════════════════════════════════════════════════════════
@@ -234,6 +263,15 @@
 
   const CHAVE = 'intimatto:provador';
   const provadorDlg = document.getElementById('provador');
+
+  /* Quais pecas vao na mensagem.
+
+     Existe porque separar e pedir sao coisas diferentes: ela pode levar cinco
+     ao provador e querer perguntar de duas hoje. Sem isso, tirar uma peca do
+     pedido significa tirar do provador — e ai ela perde a peca que ainda
+     queria. Marcadas por padrao: o caso comum e querer todas. */
+  const naMensagem = new Set();
+  const chaveDe = (i) => `${i.slug}|${i.tamanho}`;
 
   function lerProvador() {
     try {
@@ -264,16 +302,69 @@
     const repetido = itens.some(
       (i) => i.slug === pecaAberta.slug && i.tamanho === tamanhoEscolhido
     );
-    if (!repetido) itens.push({ slug: pecaAberta.slug, tamanho: tamanhoEscolhido });
+
+    if (repetido) {
+      // Nao fecha o modal: ela clicou de novo porque nao percebeu que ja
+      // tinha levado. Fechar so aumentaria a confusao.
+      const aviso = document.getElementById('modal-aviso');
+      aviso.textContent = `${pecaAberta.nome}, tamanho ${tamanhoEscolhido}, já está no provador.`;
+      aviso.setAttribute('data-visivel', '');
+      return;
+    }
+
+    /* Guarda a posicao da foto ANTES de fechar o modal: depois de fechado o
+       elemento sai da tela e o retangulo zera. */
+    const foto = document.querySelector('.modal__foto');
+    const origem = foto ? foto.getBoundingClientRect() : null;
+
+    itens.push({ slug: pecaAberta.slug, tamanho: tamanhoEscolhido });
     gravarProvador(itens);
 
-    // Confirma no lugar onde o olho ja esta, senao ela clica de novo achando
-    // que nao funcionou.
-    const aviso = document.getElementById('modal-aviso');
-    aviso.textContent = repetido
-      ? `${pecaAberta.nome}, tamanho ${tamanhoEscolhido}, já está no provador.`
-      : `${pecaAberta.nome}, tamanho ${tamanhoEscolhido}, no provador.`;
-    aviso.setAttribute('data-visivel', '');
+    // Fecha e devolve a cliente pro catalogo. O voo da foto ate a prateleira
+    // e o que conta o que aconteceu — sem ele, o modal some e a peca parece
+    // ter evaporado.
+    if (dlg.open) dlg.close();
+    if (foto) voarParaPrateleira(foto, origem);
+  }
+
+  /* A foto sai do modal e pousa na prateleira.
+
+     Serve a duas coisas ao mesmo tempo: confirma que a peca entrou e ensina
+     ONDE ela entrou, que e a pergunta que a cliente faria em seguida. E, com
+     a prateleira enchendo a cada peca, o proprio rodape vira o convite pra
+     fechar o pedido. */
+  function voarParaPrateleira(foto, origem) {
+    const menosMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const barra = document.getElementById('prateleira');
+    if (menosMovimento || !origem || !barra || barra.hidden) return;
+
+    const destino = barra.querySelector('.prateleira__fotos img:last-of-type');
+    if (!destino) return;
+    const chegada = destino.getBoundingClientRect();
+
+    const voo = foto.cloneNode(true);
+    voo.className = 'voo';
+    voo.style.cssText =
+      `left:${origem.left}px; top:${origem.top}px; ` +
+      `width:${origem.width}px; height:${origem.height}px;`;
+    document.body.appendChild(voo);
+
+    requestAnimationFrame(() => {
+      voo.style.transform =
+        `translate(${chegada.left - origem.left}px, ${chegada.top - origem.top}px) ` +
+        `scale(${chegada.width / origem.width})`;
+      voo.style.opacity = '0.4';
+    });
+
+    const limpar = () => {
+      voo.remove();
+      barra.setAttribute('data-recebeu', '');
+      setTimeout(() => barra.removeAttribute('data-recebeu'), 600);
+    };
+    voo.addEventListener('transitionend', limpar, { once: true });
+    // Rede: se a transicao nao disparar (aba em segundo plano, por exemplo),
+    // o clone nao pode ficar preso na tela pra sempre.
+    setTimeout(() => { if (voo.isConnected) limpar(); }, 900);
   }
 
   function tirarDoProvador(slug, tamanho) {
@@ -321,6 +412,13 @@
       );
     }
 
+    /* Peca nova entra ja marcada; peca que saiu do provador sai daqui junto.
+       Sem esta limpeza o Set acumularia chaves de pecas que nao existem mais
+       e a contagem do botao iria mentindo com o tempo. */
+    const atuais = new Set(lista.map(chaveDe));
+    lista.forEach((i) => { if (!naMensagem.has(chaveDe(i))) naMensagem.add(chaveDe(i)); });
+    [...naMensagem].forEach((k) => { if (!atuais.has(k)) naMensagem.delete(k); });
+
     pintarPrateleira(lista);
 
     if (!corpo) return;
@@ -335,13 +433,20 @@
     corpo.innerHTML = lista
       .map((i) => {
         const p = PRODUTOS.find((x) => x.slug === i.slug);
+        const chave = chaveDe(i);
+        const marcada = naMensagem.has(chave);
         return `
-        <div class="item">
+        <div class="item${marcada ? '' : ' item--fora'}">
+          <label class="item__marca">
+            <input type="checkbox" data-chave="${esc(chave)}" ${marcada ? 'checked' : ''}>
+            <span class="item__marca__caixa" aria-hidden="true"></span>
+            <span class="visualmente-oculto">Incluir ${esc(p.nome)} no pedido</span>
+          </label>
           <button class="item__ver" type="button" data-slug="${esc(p.slug)}"
                   data-tamanho="${esc(i.tamanho)}"
                   aria-label="Ver ${esc(p.nome)} de novo">
             <picture>
-              ${fontes(p.slug, 'img/produtos', GRID_LARGURAS, '6rem')}
+              ${fontes(p.slug, 'img/produtos', GRID_LARGURAS, '5rem')}
               <img class="item__foto" src="img/produtos/${esc(p.slug)}-400.webp"
                    width="${RAZAO.w}" height="${RAZAO.h}" loading="lazy" decoding="async" alt="">
             </picture>
@@ -365,19 +470,36 @@
     // este innerHTML e reescrito a cada mudanca e levaria os listeners junto.
 
     if (pe) pe.hidden = false;
+    atualizarPedido(lista);
+  }
+
+  /* Total e mensagem olham so o que esta marcado. Roda a cada clique no
+     checkbox sem repintar a lista: repintar perderia o foco de quem navega
+     por teclado e faria as fotos piscarem. */
+  function atualizarPedido(lista) {
+    const escolhidas = (lista || lerProvador()).filter((i) => naMensagem.has(chaveDe(i)));
+    const valores = escolhidas.map((i) => emNumero(PRODUTOS.find((x) => x.slug === i.slug)?.preco));
 
     // Total so aparece se TODOS os precos derem pra ler. Meio total engana
     // mais do que total nenhum.
-    const valores = lista.map((i) => emNumero(PRODUTOS.find((x) => x.slug === i.slug)?.preco));
     const totalEl = document.getElementById('provador-total');
-    if (valores.every((v) => v !== null)) {
+    if (escolhidas.length && valores.every((v) => v !== null)) {
       const soma = valores.reduce((a, b) => a + b, 0);
       totalEl.innerHTML = `<span>Total</span><span>${esc(emReais(soma))}</span>`;
     } else {
       totalEl.textContent = '';
     }
 
-    document.getElementById('provador-wpp').href = montarPedido(lista, valores);
+    // O botao diz quantas vao. Sem isso, desmarcar uma peca nao muda nada na
+    // tela e a cliente nao tem como saber o que vai chegar na loja.
+    const botao = document.getElementById('provador-wpp');
+    const n = escolhidas.length;
+    botao.textContent = n === 0 ? 'Escolha ao menos uma peça'
+      : n === 1 ? 'Enviar 1 peça no WhatsApp'
+      : `Enviar ${n} peças no WhatsApp`;
+    botao.toggleAttribute('data-travado', n === 0);
+    botao.setAttribute('aria-disabled', String(n === 0));
+    botao.href = n ? montarPedido(escolhidas, valores) : '#';
   }
 
   /* A prateleira: as pecas separadas ficam a vista no rodape da tela.
@@ -422,8 +544,8 @@
     barra.hidden = false;
   }
 
-  function montarPedido(lista, valores) {
-    const linhas = lista.map((i) => {
+  function montarPedido(escolhidas, valores) {
+    const linhas = escolhidas.map((i) => {
       const p = PRODUTOS.find((x) => x.slug === i.slug);
       return `• ${p.nome} — Tam ${i.tamanho}${p.preco ? ` — ${p.preco}` : ''}`;
     });
@@ -438,7 +560,13 @@
   if (provadorDlg) {
     const abrirProvador = () => {
       pintarProvador();
-      provadorDlg.showModal();
+      /* showModal e nao show: so o modal entra na camada de topo. Aberto com
+         show() o painel fica no fluxo normal e a pagina atravessa por cima
+         dele — da pra ver o texto do hero por cima das fotos da lista.
+         O teste do :modal desfaz esse estado se ele aparecer por qualquer
+         caminho, em vez de deixar a tela quebrada. */
+      if (provadorDlg.open && !provadorDlg.matches(':modal')) provadorDlg.close();
+      if (!provadorDlg.open) provadorDlg.showModal();
     };
 
     // Duas portas de entrada: o botao do header no desktop e a prateleira no
@@ -466,6 +594,23 @@
       if (tirar) return tirarDoProvador(tirar.dataset.slug, tirar.dataset.tamanho);
 
       if (e.target === provadorDlg) provadorDlg.close();
+    });
+
+    // Marcar e desmarcar. 'change' e nao 'click' pra funcionar por teclado
+    // (barra de espaco) do mesmo jeito que pelo toque.
+    provadorDlg.addEventListener('change', (e) => {
+      const caixa = e.target.closest('input[type="checkbox"]');
+      if (!caixa) return;
+      if (caixa.checked) naMensagem.add(caixa.dataset.chave);
+      else naMensagem.delete(caixa.dataset.chave);
+      caixa.closest('.item')?.classList.toggle('item--fora', !caixa.checked);
+      atualizarPedido();
+    });
+
+    // Sem peca marcada o link nao leva a lugar nenhum: melhor nao abrir o
+    // WhatsApp do que abrir com uma mensagem vazia.
+    document.getElementById('provador-wpp').addEventListener('click', (e) => {
+      if (e.currentTarget.hasAttribute('data-travado')) e.preventDefault();
     });
   }
 

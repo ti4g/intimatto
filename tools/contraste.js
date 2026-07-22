@@ -23,6 +23,9 @@ const CORES = {
   ouro: '#b08a28',
   ouroClaro: '#e6be64',
   preto: '#000000',
+  // Candidatos a texto secundario no bloco preto (endereco, horario, CNPJ)
+  cinzaClaro: '#a8a29a',
+  cinzaEscuroDemais: '#6b6660',
   // Hover do botao. Contraintuitivo: o texto em cima e escuro, entao escurecer
   // o ouro APROXIMA os dois e derruba o contraste. O hover tem que CLAREAR.
   ouroHoverErrado: '#9a771f',
@@ -56,10 +59,13 @@ const PARES = [
   ['tinta', 'branco', 'nome e preco no modal', 'normal'],
   ['cinza', 'branco', 'label de tamanho', 'normal'],
   ['tinta', 'ouro', 'botao do WhatsApp', 'normal'],
+  ['tinta', 'fio', 'botao travado (nenhuma peca marcada)', 'normal'],
   ['tinta', 'ouroHover', 'botao do WhatsApp em hover', 'normal'],
   ['tinta', 'ouroHoverErrado', 'REPROVA — hover escurecendo o ouro', 'normal'],
   ['ouroClaro', 'preto', 'links do bloco preto', 'normal'],
   ['branco', 'preto', 'bloco preto', 'normal'],
+  ['cinzaClaro', 'preto', 'endereco e CNPJ no rodape', 'normal'],
+  ['cinzaEscuroDemais', 'preto', 'REPROVA — cinza secundario escuro demais', 'normal'],
   // Os que NAO passam, mantidos aqui de proposito pra ninguem tentar de novo:
   ['ouro', 'luz', 'REPROVA — dourado como texto na pagina', 'normal'],
   ['ouro', 'branco', 'REPROVA — dourado como texto no modal', 'normal'],

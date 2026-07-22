@@ -37,6 +37,37 @@
 <link rel="preload" as="image" href="img/hero/essence-poster.webp" fetchpriority="high">
 
 <link rel="stylesheet" href="css/style.css">
+
+<!-- Diz ao Google que isto e uma loja fisica com endereco, e nao um site
+     qualquer. E o que faz aparecer em busca por "moda intima Palmas", que
+     pra uma loja de rua vale mais que busca pelo nome da marca. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ClothingStore",
+  "name": "Intimatto Delles",
+  "description": "Roupa feminina e moda íntima em Palmas, Tocantins.",
+  "url": "https://ti4g.github.io/intimatto/",
+  "image": "https://ti4g.github.io/intimatto/img/social/og.jpg",
+  "telephone": "+5563991266674",
+  "taxID": "47.047.775/0001-86",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Q. 104 Sul, Rua SE 5",
+    "addressLocality": "Palmas",
+    "addressRegion": "TO",
+    "postalCode": "77020-032",
+    "addressCountry": "BR"
+  },
+  "openingHoursSpecification": [{
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+    "opens": "09:00",
+    "closes": "18:00"
+  }],
+  "sameAs": ["https://instagram.com/intimattodelles"]
+}
+</script>
 </head>
 <body>
 
@@ -46,7 +77,10 @@
   <p class="semjs">
     Para ver as peças, ative o JavaScript — ou fale com a gente no
     <a href="https://instagram.com/intimattodelles" target="_blank" rel="noopener">Instagram</a>
-    ou no <a href="https://wa.me/5563999614831" target="_blank" rel="noopener">WhatsApp</a>.
+    <!-- Unico wa.me cravado no HTML: existe pra quando o JS nao roda, entao
+         nao pode vir do produtos.js. Se o numero da loja mudar, muda aqui
+         tambem. -->
+    ou no <a href="https://wa.me/5563991266674" target="_blank" rel="noopener">WhatsApp</a>.
   </p>
 </noscript>
 
@@ -122,6 +156,22 @@
     <a class="rodape__link" id="rodape-wpp" href="#"
        target="_blank" rel="noopener">WhatsApp</a>
   </nav>
+
+  <!-- Loja fisica: endereco no Maps, horario e CNPJ.
+
+       Nao e rodape de enfeite. Quem compra por WhatsApp de uma loja que nunca
+       viu quer saber que ela existe num endereco — e o CNPJ visivel e
+       exigencia do Codigo de Defesa do Consumidor pra venda a distancia. -->
+  <div class="rodape__loja">
+    <a class="rodape__endereco"
+       href="https://www.google.com/maps/search/?api=1&query=Q.+104+Sul+Rua+SE+5%2C+Palmas+-+TO%2C+77020-032"
+       target="_blank" rel="noopener">
+      <address>Q. 104 Sul, Rua SE 5 — Palmas, TO<br>CEP 77020-032</address>
+    </a>
+    <!-- PLACEHOLDER: horario a confirmar com a loja -->
+    <p class="rodape__horario">Segunda a sábado, 9h às 18h</p>
+    <p class="rodape__cnpj">CNPJ 47.047.775/0001-86</p>
+  </div>
 </footer>
 
 <dialog class="modal" id="modal" aria-labelledby="modal-nome">
@@ -131,7 +181,12 @@
     </svg>
   </button>
   <div class="modal__corpo">
-    <picture class="modal__foto-wrap" id="modal-foto-wrap"></picture>
+    <!-- A foto abre inteira ao toque. O 4:5 aqui e o mesmo da grade, entao
+         corta a barra da peca — que costuma ser o que a cliente quer ver. -->
+    <button class="modal__ampliar" id="modal-ampliar" type="button">
+      <picture class="modal__foto-wrap" id="modal-foto-wrap"></picture>
+      <span class="modal__ampliar__dica voz-ar" aria-hidden="true">Ver inteira</span>
+    </button>
     <div class="modal__info">
       <h2 class="modal__nome" id="modal-nome"></h2>
       <p class="modal__preco" id="modal-preco"></p>
@@ -156,6 +211,17 @@
     <span class="prateleira__acao voz-ar">Ver provador</span>
   </button>
 </div>
+
+<!-- A foto sem corte. Vive so aqui: o arquivo "-inteira" nao e baixado ate a
+     cliente tocar na foto do modal. -->
+<dialog class="inteira" id="inteira" aria-label="Foto inteira da peça">
+  <button class="modal__fechar" id="inteira-fechar" type="button" aria-label="Fechar">
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false">
+      <path d="M1 1l16 16M17 1L1 17" fill="none" stroke="currentColor" stroke-width="1.25"/>
+    </svg>
+  </button>
+  <picture class="inteira__wrap" id="inteira-wrap"></picture>
+</dialog>
 
 <dialog class="provador" id="provador" aria-labelledby="provador-titulo">
   <div class="provador__topo">

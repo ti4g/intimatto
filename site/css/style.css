@@ -45,6 +45,7 @@
   --ouro: #b08a28;       /* fio, borda e preenchimento. nunca texto — ver nota */
   --ouro-hover: #c49a2e; /* hover do botao. CLAREIA de proposito — ver nota */
   --ouro-claro: #e6be64; /* so dentro do bloco preto (11,9:1 sobre #000) */
+  --cinza-claro: #a8a29a; /* texto secundario no bloco preto (8,3:1 sobre #000) */
   --preto: #000000;      /* exato. qualquer outro expoe a borda do JPG do logo */
 
   /* O --cinza do documento original era #8A8781, que da 3,29:1 sobre --luz e
@@ -623,6 +624,43 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .rodape__link:hover { color: var(--branco); }
 .rodape__link:focus-visible { outline-color: var(--ouro-claro); }
 
+/* ── Dados da loja ────────────────────────────────────────── */
+/* Endereco, horario e CNPJ. Separados dos links por um fio dourado: sao
+   informacao de confianca, nao navegacao. */
+
+.rodape__loja {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgb(230 190 100 / 0.35);
+  width: min(22rem, 100%);
+  color: var(--cinza-claro);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.rodape__endereco {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s var(--curva);
+}
+.rodape__endereco:hover { color: var(--branco); }
+.rodape__endereco address { font-style: normal; margin: 0; }
+
+.rodape__horario { margin: 0; }
+
+/* Menor e mais apagado: e o dado que quase ninguem le, mas que precisa
+   estar la. Ainda passa em AA. */
+.rodape__cnpj {
+  margin: 0;
+  font-size: 0.625rem;
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+}
+
 /* ── Modal ────────────────────────────────────────────────── */
 /* Nao e galeria: e o seletor de tamanho. Ha uma foto por peca, e e aqui
    que a cliente escolhe P/M/G antes da mensagem do WhatsApp ser montada. */
@@ -686,11 +724,67 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    montou. As larguras 400/800/1200 ja existem. */
 .item {
   display: grid;
-  grid-template-columns: 6rem 1fr auto;
-  gap: 1rem;
+  grid-template-columns: auto 5rem 1fr auto;
+  gap: 0.85rem;
   align-items: start;
   padding: 1.25rem 0;
   border-bottom: 1px solid var(--fio);
+  transition: opacity 0.25s var(--curva);
+}
+
+/* Peca separada mas fora do pedido: continua no provador, sai da mensagem.
+   Apaga em vez de sumir — ela ainda esta ali, so nao vai agora. */
+.item--fora { opacity: 0.45; }
+
+/* ── Marcar a peca ────────────────────────────────────────── */
+/* Checkbox de verdade por baixo: teclado, leitor de tela e o toque do
+   sistema vem de graca. O quadrado desenhado e so a roupa dele. */
+
+.item__marca {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  margin: -0.5rem 0 0 -0.75rem;
+  cursor: pointer;
+}
+
+.item__marca input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+}
+
+.item__marca__caixa {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 1px solid var(--fio);
+  transition: background 0.2s var(--curva), border-color 0.2s var(--curva);
+}
+
+/* Ouro como campo, com o visto em tinta por cima: a mesma regra do botao
+   do WhatsApp e do disco de contagem. */
+.item__marca input:checked + .item__marca__caixa {
+  background: var(--ouro) center / 0.7rem no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2l2.6 2.6L10 3.4' fill='none' stroke='%231a1a18' stroke-width='1.6'/%3E%3C/svg%3E");
+  border-color: var(--ouro);
+}
+
+.item__marca input:focus-visible + .item__marca__caixa {
+  outline: 2px solid var(--tinta);
+  outline-offset: 2px;
+}
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* A foto abre a peca de novo. Depois de separar quatro coisas, a cliente
@@ -808,6 +902,29 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 .prateleira[hidden] { display: none; }
 
+/* Pulso curto quando uma peca pousa. E o fim do voo: a foto chega e a
+   prateleira responde, entao a cliente sabe que aquilo ali e o destino. */
+.prateleira[data-recebeu] { animation: prateleira-recebe 0.5s var(--curva); }
+
+@keyframes prateleira-recebe {
+  0%   { transform: none; }
+  35%  { transform: translateY(-4px); }
+  100% { transform: none; }
+}
+
+/* A foto viajando do modal ate a prateleira. Fora do fluxo e sem capturar
+   clique: e so um rastro visual. */
+.voo {
+  position: fixed;
+  z-index: 30;
+  margin: 0;
+  object-fit: cover;
+  pointer-events: none;
+  border-radius: 1px;
+  transition: transform 0.55s var(--curva), opacity 0.55s var(--curva);
+  will-change: transform, opacity;
+}
+
 @keyframes prateleira-sobe {
   from { transform: translateY(100%); }
   to   { transform: none; }
@@ -871,7 +988,85 @@ body:has(.prateleira:not([hidden])) .rodape {
    a pagina ficava presa sem rolar, que e pior do que o problema original.
    Com :has() o estado segue o DOM: fechou por Esc, por clique no fundo ou por
    close(), destrava sozinho. Nao ha evento pra perder nem estado pra desfazer. */
-body:has(.modal[open]), body:has(.provador[open]) { overflow: hidden; }
+body:has(.modal[open]), body:has(.provador[open]), body:has(.inteira[open]) { overflow: hidden; }
+
+/* ── Foto inteira ─────────────────────────────────────────── */
+/* Abre por cima do modal. Fundo quase preto pra foto de qualquer proporcao
+   pousar sem borda esquisita — e porque aqui a peca e a unica coisa na tela. */
+
+.inteira {
+  border: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  background: rgb(10 9 8 / 0.97);
+  display: grid;
+  place-items: center;
+}
+
+.inteira::backdrop { background: rgb(10 9 8 / 0.9); }
+
+.inteira__wrap {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* O limite e a TELA, nao a cadeia de pais.
+
+   max-height: 100% aqui nao funcionava: cada container acima e grid de linha
+   automatica, e linha automatica cresce com o conteudo — entao o 100% da foto
+   media contra a altura da propria foto e ela estourava a tela, que e o
+   oposto do que esta janela existe pra fazer. Percentual so resolve contra
+   altura definida, e nenhuma delas era.
+
+   dvh e nao vh por causa da barra de endereco do Safari, igual ao hero. Os
+   6,5rem sao o respiro de cima e de baixo mais o espaco do botao de fechar. */
+.inteira__foto {
+  max-width: calc(100vw - 2 * var(--passo));
+  max-height: calc(100dvh - 6.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.inteira .modal__fechar {
+  background: none;
+  color: var(--branco);
+  z-index: 2;
+}
+
+/* ── Ampliar, no modal ────────────────────────────────────── */
+
+.modal__ampliar {
+  position: relative;
+  display: block;
+  width: 100%;
+  cursor: zoom-in;
+  grid-row: 1;
+  grid-column: 1;
+  min-width: 0;
+}
+
+/* Sem a dica ninguem descobre que a foto abre. Discreta o bastante pra nao
+   competir com a peca, e sobre um degrade porque pousa em cima da foto. */
+.modal__ampliar__dica {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 2rem 0.9rem 0.7rem;
+  text-align: right;
+  font-size: 0.5rem;
+  color: var(--branco);
+  background: linear-gradient(to top, rgb(10 9 8 / 0.5), rgb(10 9 8 / 0));
+  transition: opacity 0.25s var(--curva);
+}
+
+.modal__ampliar:hover .modal__ampliar__dica { opacity: 0.7; }
 
 .modal {
   border: 0;
@@ -911,8 +1106,6 @@ body:has(.modal[open]), body:has(.provador[open]) { overflow: hidden; }
 }
 
 .modal__foto-wrap {
-  grid-row: 1;
-  grid-column: 1;
   min-width: 0;
 }
 
@@ -1006,6 +1199,19 @@ body:has(.modal[open]), body:has(.provador[open]) { overflow: hidden; }
 }
 .wpp:hover { background: var(--ouro-hover); }
 
+/* Nenhuma peca marcada: o botao continua legivel mas nao convida.
+
+   O texto e --tinta e nao --cinza: cinza sobre fio da 3,46:1 e reprova em AA.
+   Estado desligado nao e desculpa pra texto ilegivel — quem precisa ler e
+   justamente quem nao entendeu por que o botao nao funciona. Tinta sobre fio
+   da 12,04:1, e quem comunica o desligado e o fundo apagado, nao a letra. */
+.wpp[data-travado] {
+  background: var(--fio);
+  color: var(--tinta);
+  cursor: not-allowed;
+}
+.wpp[data-travado]:hover { background: var(--fio); }
+
 @media (min-width: 48rem) {
   .modal {
     width: min(58rem, 92vw);
@@ -1018,7 +1224,8 @@ body:has(.modal[open]), body:has(.provador[open]) { overflow: hidden; }
     grid-template-columns: 0.85fr 1fr;
     overflow: hidden;
   }
-  .modal__foto-wrap { grid-row: 1; height: 100%; }
+  .modal__ampliar { grid-row: 1; grid-column: 1; height: 100%; }
+  .modal__foto-wrap { height: 100%; }
   .modal__foto { height: 100%; aspect-ratio: auto; }
   .modal__info {
     grid-row: 1;
