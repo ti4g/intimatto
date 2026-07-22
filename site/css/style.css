@@ -94,6 +94,15 @@ body {
 
 img { display: block; max-width: 100%; }
 picture { display: block; }
+
+/* <source> nao tem display: none no navegador — a lista do HTML que zera
+   elementos de metadado nao inclui ele. Enquanto o <picture> e um bloco isso
+   nao aparece, porque o elemento e vazio e nao ocupa altura.
+
+   Quando o <picture> vira grid ou flex, porem, cada <source> conta como item:
+   o visualizador de foto inteira ganhava tres linhas (99px, 99px e o resto) e
+   a foto, centrada dentro da terceira, descia 100px do centro da tela. */
+source { display: none; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; }
 
 :focus-visible {
@@ -156,14 +165,29 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ── Header ───────────────────────────────────────────────── */
 
+/* Acompanha a rolagem.
+
+   A prateleira que vivia no rodape da tela saiu, e o trabalho dela era um so:
+   manter o provador alcancavel de qualquer altura do catalogo. Header parado
+   no topo faria quem escolhe uma peca no fim da grade rolar a pagina inteira
+   pra fechar o pedido — exatamente o problema que a prateleira resolvia.
+
+   Aqui e sticky, nao fixed: no desktop o header ocupa espaco no fluxo e o
+   hero comeca embaixo dele, que e como esta pagina sempre foi. No celular ele
+   vira fixed (ver o bloco de baixo), porque la o video precisa sangrar ate o
+   pixel zero. */
 .header {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 25;
+  background: var(--luz);
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
   padding: 1.15rem var(--passo);
   padding-top: calc(1.15rem + env(safe-area-inset-top));
+  transition: background 0.3s var(--curva);
 }
 
 .marca {
@@ -194,9 +218,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   color: var(--cinza);
 }
 
+/* center e nao baseline: o provador virou icone, e nao ha linha de base
+   compartilhada entre um SVG e o texto do Instagram ao lado. */
 .header__links {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.7rem;
 }
 
@@ -208,37 +234,66 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .header__link:hover { color: var(--tinta); }
 
-/* Botao, nao link: abre um dialogo na propria pagina. Herda .header__link
-   pra ficar igual aos vizinhos. */
+/* Icone e nao a palavra "Provador".
+
+   Vale nas duas larguras — a 320px os tres blocos de texto estouravam a tela,
+   e era por isso que no celular o botao simplesmente sumia. E tira letra do
+   topo em vez de somar. O nome continua existindo no aria-label.
+
+   2,75rem de alvo: abaixo disso o dedo erra. */
 .header__provador {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  margin: -0.75rem -0.6rem -0.75rem 0;
   cursor: pointer;
-  padding: 0;
-  white-space: nowrap;
+  color: var(--cinza);
+  line-height: 0;
+  transition: color 0.2s var(--curva);
+}
+
+.header__provador:hover,
+.header__provador[data-cheia] { color: var(--tinta); }
+
+/* O icone nunca e o alvo do clique: sem isto o evento chega no <path> e
+   qualquer codigo que olhe pro alvo precisa saber subir ate o botao. */
+.header__provador svg { pointer-events: none; }
+
+/* Pulso curto quando uma peca pousa. E o fim do voo: a foto chega e o botao
+   responde, entao a cliente sabe que aquilo ali e o destino. */
+.header__provador[data-recebeu] { animation: provador-recebe 0.5s var(--curva); }
+
+@keyframes provador-recebe {
+  0%   { transform: none; }
+  35%  { transform: scale(1.16); }
+  100% { transform: none; }
 }
 
 /* Contagem como campo dourado, nao como "(n)" em texto.
 
-   Duas razoes. A regra do projeto: --ouro nao pode ser letra (2,99:1) mas pode
-   ser campo com --tinta em cima (5,40:1). E espaco: "(1)" com tracking de
-   0,32em custa ~33px, o disco custa ~23px — e a 320px o header estourava 16px
-   pra fora da tela, com a contagem cortada na borda. */
+   A regra do projeto: --ouro nao pode ser letra (2,99:1) mas pode ser campo
+   com --tinta em cima (5,40:1). */
 .header__provador__conta:empty { display: none; }
 
 .header__provador__conta {
-  display: inline-grid;
+  position: absolute;
+  top: 0.35rem;
+  right: 0.3rem;
+  display: grid;
   place-items: center;
-  min-width: 1.3em;
-  height: 1.3em;
-  margin-left: 0.45em;
-  padding: 0 0.3em;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.25em;
   border-radius: 999px;
   background: var(--ouro);
   color: var(--tinta);
+  font-family: 'Jost', system-ui, sans-serif;
   font-size: 0.5625rem;
   font-weight: 600;
   letter-spacing: 0;
   line-height: 1;
-  transform: translateY(-0.05em);
 }
 
 /* Nunca comprime: e a saida da pagina. Quem cede espaco e a marca. */
@@ -255,30 +310,39 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    header por cima nao teria imagem embaixo pra flutuar. */
 
 @media (max-width: 47.999rem) {
+  /* fixed e nao sticky: sticky ocuparia espaco no fluxo e empurraria o video
+     pra baixo. Tirando o header do fluxo, a imagem comeca no pixel zero e a
+     marca passa a viver dentro da cena. */
   .header {
-    position: absolute;
+    position: fixed;
     inset: 0 0 auto 0;
-    z-index: 5;
+    background: transparent;
   }
 
-  .marca__nome,
-  .marca__sub,
-  .header__link {
+  /* Enquanto o hero esta atras da faixa, a letra e branca sobre o scrim do
+     video. Depois que ele sai, o app.js poe data-fora-do-hero e tudo volta a
+     ser tinta sobre papel — branco sobre o creme do catalogo seria invisivel. */
+  .header:not([data-fora-do-hero]) .marca__nome,
+  .header:not([data-fora-do-hero]) .marca__sub,
+  .header:not([data-fora-do-hero]) .header__link,
+  .header:not([data-fora-do-hero]) .header__provador {
     color: var(--branco);
   }
 
-  .header__link:hover { color: var(--ouro-claro); }
-  .header__ponto { background: var(--ouro-claro); }
-  .header__provador__conta { background: var(--ouro-claro); }
-  :focus-visible { outline-color: var(--branco); }
+  .header:not([data-fora-do-hero]) .header__link:hover { color: var(--ouro-claro); }
+  .header:not([data-fora-do-hero]) .header__ponto { background: var(--ouro-claro); }
+  .header:not([data-fora-do-hero]) .header__provador__conta { background: var(--ouro-claro); }
+
+  /* Contorno branco so dentro do header sobre o video. Solto, este seletor
+     valia pra pagina inteira e deixava o foco do teclado quase invisivel nos
+     cards, que ficam sobre o creme. */
+  .header:not([data-fora-do-hero]) :focus-visible { outline-color: var(--branco); }
+
+  .header[data-fora-do-hero] { background: var(--luz); }
 
   /* O fio do header sai: sobre a foto ele vira risco solto, e o unico
      divisor que carrega significado e o que separa hero de grade. */
   .header .fio { display: none; }
-
-  /* No celular quem leva ao provador e a prateleira fixa. Tirar o botao
-     daqui alivia o topo — a 320px os tres blocos estouravam a tela. */
-  .header__provador { display: none; }
 
   /* O header flutua sobre o hero, entao a pagina comeca no video. */
   main { padding-top: 0; }
@@ -666,137 +730,92 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    que a cliente escolhe P/M/G antes da mensagem do WhatsApp ser montada. */
 
 /* ── Provador ─────────────────────────────────────────────── */
-/* Painel com as pecas separadas, aberto pela prateleira do rodape.
+/* A tela do pedido. Secao irma do catalogo, e nao <dialog>: quem troca as
+   duas e o hash da URL, entao o gesto de voltar do celular volta pro catalogo
+   em vez de sair do site — e camada sobre camada fica impossivel de existir.
 
-   Nao e carrinho, e por isso nao se chama sacola: nao ha pagamento, estoque
-   nem checkout. E uma lista de pecas sobre as quais ela vai conversar — a
-   metafora de e-commerce era o que fazia a tela parecer generica. */
+   O nome nao virou "sacola" a esmo: a loja fecha por conversa, e o que esta
+   aqui e o que ela vai perguntar. Mas a peca tem quantidade e o total soma.
+   E um pedido de verdade, so que sem pagamento. */
+
+#catalogo[hidden],
+#provador[hidden] { display: none; }
 
 .provador {
-  border: 0;
-  padding: 0;
-  background: var(--branco);
-  color: var(--tinta);
-  width: min(26rem, 100%);
-  max-width: none;
-  height: 100%;
-  max-height: none;
-  /* Encostada na direita em vez de centralizada: o <dialog> centraliza por
-     padrao, e margin sozinho nao vence isso. */
-  margin: 0 0 0 auto;
-  display: flex;
-  flex-direction: column;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 0 var(--passo) var(--folga);
 }
 
-.provador::backdrop { background: rgb(26 26 24 / 0.55); }
+.provador__topo { padding: 1.25rem 0 0; }
 
-.provador__topo {
-  display: flex;
+.provador__voltar {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.15rem var(--passo);
-  padding-top: calc(1.15rem + env(safe-area-inset-top));
-  border-bottom: 1px solid var(--fio);
+  gap: 0.5rem;
+  font-size: 0.625rem;
+  color: var(--cinza);
+  cursor: pointer;
+  transition: color 0.2s var(--curva);
 }
+
+.provador__voltar:hover { color: var(--tinta); }
+.provador__voltar svg { pointer-events: none; }
 
 .provador__titulo {
-  font-size: 0.75rem;
-  margin: 0;
+  font-size: clamp(1.75rem, 7vw, 2.5rem);
+  line-height: 1;
+  margin: 0.75rem 0 1.75rem;
 }
 
-.provador__corpo {
-  flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 0 var(--passo);
+/* Recebe o foco na troca de tela, entao o contorno so pode aparecer quando o
+   foco chegou por teclado — senao a tela abre com um retangulo em volta do
+   titulo toda vez. */
+.provador__titulo:focus { outline: none; }
+.provador__titulo:focus-visible {
+  outline: 2px solid var(--tinta);
+  outline-offset: 4px;
 }
+
+.provador__lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--fio);
+}
+
+.provador__lista[hidden] { display: none; }
 
 .provador__vazia {
-  padding: 3rem 0;
-  text-align: center;
+  padding: 2.5rem 0;
   color: var(--cinza);
   font-size: 0.875rem;
 }
 
-/* A foto e o produto. Em miniatura de 3,5rem ao lado de texto isto virava
-   recibo; no tamanho de verdade o provador vira a pagina de lookbook que ela
-   montou. As larguras 400/800/1200 ja existem. */
-.item {
+/* ── A linha do pedido ────────────────────────────────────── */
+/*  [foto] [nome + tamanhos]  [x]
+    [foto] [qtd ....... preco]  */
+
+.linha {
   display: grid;
-  grid-template-columns: auto 5rem 1fr auto;
-  gap: 0.85rem;
-  align-items: start;
+  grid-template-columns: 5.5rem 1fr auto;
+  column-gap: 1rem;
+  row-gap: 0.85rem;
   padding: 1.25rem 0;
   border-bottom: 1px solid var(--fio);
-  transition: opacity 0.25s var(--curva);
 }
 
-/* Peca separada mas fora do pedido: continua no provador, sai da mensagem.
-   Apaga em vez de sumir — ela ainda esta ali, so nao vai agora. */
-.item--fora { opacity: 0.45; }
-
-/* ── Marcar a peca ────────────────────────────────────────── */
-/* Checkbox de verdade por baixo: teclado, leitor de tela e o toque do
-   sistema vem de graca. O quadrado desenhado e so a roupa dele. */
-
-.item__marca {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  margin: -0.5rem 0 0 -0.75rem;
-  cursor: pointer;
-}
-
-.item__marca input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-  margin: 0;
-}
-
-.item__marca__caixa {
-  width: 1.1rem;
-  height: 1.1rem;
-  border: 1px solid var(--fio);
-  transition: background 0.2s var(--curva), border-color 0.2s var(--curva);
-}
-
-/* Ouro como campo, com o visto em tinta por cima: a mesma regra do botao
-   do WhatsApp e do disco de contagem. */
-.item__marca input:checked + .item__marca__caixa {
-  background: var(--ouro) center / 0.7rem no-repeat
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2l2.6 2.6L10 3.4' fill='none' stroke='%231a1a18' stroke-width='1.6'/%3E%3C/svg%3E");
-  border-color: var(--ouro);
-}
-
-.item__marca input:focus-visible + .item__marca__caixa {
-  outline: 2px solid var(--tinta);
-  outline-offset: 2px;
-}
-
-.visualmente-oculto {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-/* A foto abre a peca de novo. Depois de separar quatro coisas, a cliente
-   esquece qual era qual — e a foto e justamente o que ela quer rever. */
-.item__ver {
-  display: block;
+/* A foto e o produto. Em miniatura de recibo a cliente nao reconhece o que
+   separou; neste tamanho a lista continua sendo o lookbook que ela montou. */
+.linha__foto {
+  grid-column: 1;
+  grid-row: 1 / span 2;
   width: 100%;
   cursor: pointer;
   overflow: hidden;
 }
 
-.item__foto {
+.linha__foto img {
   width: 100%;
   height: auto;
   aspect-ratio: 4 / 5;
@@ -805,51 +824,131 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   transition: transform 0.5s var(--curva);
 }
 
-.item__ver:hover .item__foto { transform: scale(1.05); }
+.linha__foto:hover img { transform: scale(1.05); }
 
-/* O icone nunca e o alvo do clique: sem isto o evento chega no <path> do SVG
-   e qualquer codigo que olhe pro alvo precisa saber subir ate o botao. */
-.modal__fechar svg,
-.item__tirar svg {
-  pointer-events: none;
+.linha__info {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
 }
 
-.item__nome {
-  font-size: 0.8125rem;
+.linha__nome {
+  font-size: 0.875rem;
   font-weight: 500;
-  margin: 0 0 0.2rem;
+  margin: 0 0 0.6rem;
   line-height: 1.3;
 }
 
-.item__meta {
-  margin: 0;
-  font-size: 0.625rem;
-  color: var(--cinza);
+.linha__tamanhos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* Chip de tamanho. Trocar o tamanho aqui evita o caminho de hoje, que era
+   tirar a peca do provador e por de novo no tamanho certo. */
+.chip {
+  min-width: 2.1rem;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--fio);
   font-family: 'Jost', system-ui, sans-serif;
+  font-size: 0.625rem;
   font-weight: 300;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
+  color: var(--cinza);
+  cursor: pointer;
+  transition: border-color 0.2s var(--curva), color 0.2s var(--curva);
+}
+
+.chip:hover { border-color: var(--tinta); color: var(--tinta); }
+
+/* Ouro como campo com tinta em cima — a mesma regra do botao do WhatsApp e do
+   disco de contagem. Ouro como letra reprovaria em AA. */
+.chip[aria-pressed='true'] {
+  background: var(--ouro);
+  border-color: var(--ouro);
+  color: var(--tinta);
+}
+
+.linha__fim {
+  grid-column: 2 / span 2;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.linha__qtd {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--fio);
+}
+
+/* 2,25rem por passo. Menor que os 2,75 do padrao porque sao dois alvos
+   colados e o conjunto todo ja passa de 6rem — errar aqui custa um toque no
+   "+" em vez de no "−", nao a peca errada. */
+.qtd__passo {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--cinza);
+  font-size: 0.875rem;
+  transition: color 0.2s var(--curva), background 0.2s var(--curva);
+}
+
+.qtd__passo:hover { color: var(--tinta); background: var(--luz); }
+
+.qtd__n {
+  min-width: 1.75rem;
+  text-align: center;
+  font-family: 'Jost', system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+}
+
+.linha__preco {
+  margin: 0;
+  font-family: 'Jost', system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
 /* 2,75rem de alvo: abaixo disso o dedo erra e a cliente tira a peca errada. */
-.item__tirar {
+.linha__tirar {
+  grid-column: 3;
+  grid-row: 1;
   min-width: 2.75rem;
   min-height: 2.75rem;
-  margin: -0.6rem -0.6rem 0 0;
+  margin: -0.5rem -0.6rem 0 0;
   cursor: pointer;
   color: var(--cinza);
   line-height: 0;
   display: grid;
   place-items: center;
 }
-.item__tirar:hover { color: var(--tinta); }
+
+.linha__tirar:hover { color: var(--tinta); }
+
+/* O icone nunca e o alvo do clique: sem isto o evento chega no <path> do SVG
+   e qualquer codigo que olhe pro alvo precisa saber subir ate o botao. */
+.modal__fechar svg,
+.linha__tirar svg { pointer-events: none; }
+
+/* ── O pe do pedido ───────────────────────────────────────── */
+/* Nao e fixo. A lista tem no maximo uma duzia de linhas, entao o pe chega
+   rolando em um gesto — e barra fixa foi exatamente o que saiu daqui. */
 
 .provador__pe {
-  padding: 1.25rem var(--passo);
-  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--fio);
+  margin-top: 1.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 1rem;
 }
 
 .provador__pe[hidden] { display: none; }
@@ -859,7 +958,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-size: 0.8125rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -869,116 +968,19 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   letter-spacing: 0.1em;
 }
 
-/* Confirmacao de que a peca entrou, no lugar onde o olho ja esta. Sem isto a
-   cliente clica e nada visivel acontece, entao ela clica de novo. */
-.modal__aviso {
-  margin: 0;
-  min-height: 1.2em;
-  font-size: 0.6875rem;
-  color: var(--cinza);
-  opacity: 0;
-  transition: opacity 0.25s var(--curva);
+@media (min-width: 48rem) {
+  .linha { grid-template-columns: 7rem 1fr auto; }
+  .provador__pe {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .provador__total { gap: 1.5rem; }
 }
 
-.modal__aviso[data-visivel] { opacity: 1; }
-
-/* ── A prateleira ─────────────────────────────────────────── */
-/* Faixa fixa no rodape com as pecas separadas, sempre a vista.
-
-   Existe porque o header nao acompanha a rolagem: quem escolhia uma peca no
-   fim do catalogo tinha que subir a pagina inteira pra achar o provador. Com
-   8 pecas ja incomoda; com 40 vira desistencia. E, de brinde, ela mostra o
-   que foi separado sem precisar abrir nada. */
-
-.prateleira {
-  position: fixed;
-  inset: auto 0 0 0;
-  z-index: 20;
-  background: var(--branco);
-  border-top: 1px solid var(--ouro);
-  padding-bottom: env(safe-area-inset-bottom);
-  animation: prateleira-sobe 0.45s var(--curva) both;
-}
-
-.prateleira[hidden] { display: none; }
-
-/* Pulso curto quando uma peca pousa. E o fim do voo: a foto chega e a
-   prateleira responde, entao a cliente sabe que aquilo ali e o destino. */
-.prateleira[data-recebeu] { animation: prateleira-recebe 0.5s var(--curva); }
-
-@keyframes prateleira-recebe {
-  0%   { transform: none; }
-  35%  { transform: translateY(-4px); }
-  100% { transform: none; }
-}
-
-/* A foto viajando do modal ate a prateleira. Fora do fluxo e sem capturar
-   clique: e so um rastro visual. */
-.voo {
-  position: fixed;
-  z-index: 30;
-  margin: 0;
-  object-fit: cover;
-  pointer-events: none;
-  border-radius: 1px;
-  transition: transform 0.55s var(--curva), opacity 0.55s var(--curva);
-  will-change: transform, opacity;
-}
-
-@keyframes prateleira-sobe {
-  from { transform: translateY(100%); }
-  to   { transform: none; }
-}
-
-.prateleira__botao {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  width: 100%;
-  padding: 0.7rem var(--passo);
-  cursor: pointer;
-  text-align: left;
-}
-
-.prateleira__fotos {
-  display: flex;
-  align-items: center;
-}
-
-/* Sobrepostas como pecas no braco: ocupam pouco e leem como um conjunto,
-   nao como uma lista. */
-.prateleira__fotos img,
-.prateleira__mais {
-  width: 2.5rem;
-  height: 3.125rem;
-  object-fit: cover;
-  background: var(--fio);
-  border: 1px solid var(--branco);
-  margin-right: -0.55rem;
-}
-
-.prateleira__mais {
-  display: grid;
-  place-items: center;
-  background: var(--luz);
-  font-size: 0.625rem;
-  color: var(--cinza);
-  font-family: 'Jost', system-ui, sans-serif;
-  font-weight: 300;
-}
-
-.prateleira__acao {
-  font-size: 0.625rem;
-  color: var(--tinta);
-  white-space: nowrap;
-}
-
-/* O bloco preto cresce pra passar por baixo da prateleira. Sem isto o rodape
-   terminaria escondido atras dela e a pagina pareceria cortada. */
-body:has(.prateleira:not([hidden])) .rodape {
-  padding-bottom: calc(var(--folga) + 5rem + env(safe-area-inset-bottom));
-}
+/* O bloco preto e informacao de loja, nao de pedido. Na tela do provador ele
+   so empurraria o botao do WhatsApp pra fora da vista. */
+body:has(#provador:not([hidden])) .rodape { display: none; }
 
 /* Trava o fundo enquanto o modal esta aberto.
 
@@ -1002,8 +1004,21 @@ body:has(.modal[open]), body:has(.provador[open]), body:has(.inteira[open]) { ov
   max-width: none;
   max-height: none;
   background: rgb(10 9 8 / 0.97);
-  display: grid;
   place-items: center;
+}
+
+/* O display mora no [open], e nao na regra de cima.
+
+   Solto, ele vence o `dialog:not([open]) { display: none }` do navegador —
+   regra de autor ganha de user-agent independente de especificidade — e o
+   dialogo FECHADO passa a renderizar no fluxo: um bloco de altura de tela,
+   quase preto, no fim da pagina.
+
+   Ficou invisivel por muito tempo porque o rodape tambem e preto e os dois
+   emendavam num so. Na tela do provador, onde o rodape nao existe, ele
+   aparece sozinho embaixo do pedido. */
+.inteira[open] {
+  display: grid;
 }
 
 .inteira::backdrop { background: rgb(10 9 8 / 0.9); }
