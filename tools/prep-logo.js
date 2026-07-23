@@ -37,9 +37,31 @@ const SAIDA = path.join(RAIZ, 'site', 'img', 'logo');
   const alfa = await sharp(FONTE).greyscale().toColourspace('b-w').raw().toBuffer();
   const cor = await sharp(FONTE).ensureAlpha().raw().toBuffer();
 
+  /* O brilho vira alfa, mas o dourado mais claro do desenho so chega a 236 de
+     255 — entao o logo nunca era opaco de verdade e sempre misturava com o
+     fundo. Medido sobre o video, na posicao real do hero, isso dava 3,57:1 de
+     contraste medio: visivel, porem mole.
+
+     A curva abaixo engrossa o alfa sem tocar na COR: 0,55 leva 236 pra 255 e
+     puxa a barriga da distribuicao (a maioria dos pixels vive entre 192 e
+     224) pra perto do opaco. O dourado da marca continua exatamente o mesmo —
+     clarear a cor teria sido mais facil e teria mudado a identidade da loja.
+
+     Com esta curva a media sobe pra 5,98:1. As bordas seguem em meio-tom
+     porque a curva preserva a ordem dos valores; ela so redistribui.
+
+     O PISO existe porque a curva sozinha levanta TAMBEM o fundo: o preto do
+     JPG nao e zero exato (fica em 1 a 8 por causa da compressao), e 0,55
+     transforma isso em 13 a 40 — um veu escuro cobrindo o video inteiro, e o
+     trim() logo abaixo deixaria de achar borda pra cortar. Tudo abaixo do
+     piso vira transparencia limpa antes da curva. */
+  const CURVA_ALFA = 0.55;
+  const PISO = 12;
+
   for (let i = 0; i < alfa.length; i++) {
     const a = alfa[i];
-    cor[i * 4 + 3] = a;
+    const acima = Math.max(0, a - PISO) / (255 - PISO);
+    cor[i * 4 + 3] = Math.round(255 * Math.pow(acima, CURVA_ALFA));
     /* Onde o alfa e baixo a cor original e quase preta, e um dourado
        escurecido misturado com o fundo claro do video daria cinza sujo nas
        bordas. Reacender o pixel pro dourado do proprio logo resolve: a borda
@@ -77,19 +99,52 @@ const SAIDA = path.join(RAIZ, 'site', 'img', 'logo');
   const kb = Math.round(fs.statSync(destino).size / 1024);
   console.log(`logo.png  ${m.width}x${m.height}  ${kb} KB  alfa=${m.hasAlpha}`);
 
-  /* Previa sobre o frame mais claro do video, que e o pior caso de contraste
-     pro dourado. Nao vai pro site: serve pra decidir se o logo aguenta pousar
-     sobre a imagem ou se precisa de scrim. */
+  /* Previa do hero como ele e de verdade.
+
+     A versao anterior centralizava o logo no quadro, e era enganosa: no meio
+     do video, sem scrim, o dourado da 2,33:1 e a previa mostrava um logo
+     lavado que nunca existiu na pagina. O logo mora na BASE, sob o scrim.
+
+     Os numeros abaixo saem do layout medido no navegador a 375x812, dobrados
+     pra previa sair legivel. Se o CSS do hero mudar, mudam aqui tambem —
+     previa que mente e pior que previa nenhuma. */
   const poster = path.join(SAIDA, '..', 'hero', 'essence-poster.webp');
   if (fs.existsSync(poster)) {
-    const larguraLogo = 520;
-    const logo = await sharp(destino).resize({ width: larguraLogo }).toBuffer();
-    const { height: hLogo } = await sharp(logo).metadata();
-    await sharp(poster)
-      .resize(720, 900, { fit: 'cover', position: 'top' })
-      .composite([{ input: logo, left: Math.round((720 - larguraLogo) / 2), top: Math.round((900 - hLogo) / 2) }])
-      .jpeg({ quality: 88 })
+    const E = 2;                       // escala da previa
+    const W = 375 * E, H = 585 * E;    // hero: 72dvh de um 812
+    const LX = 16 * E, LY = 431 * E, LW = 233 * E;
+
+    const quadro = await sharp(poster)
+      .resize(W, H, { fit: 'cover', position: 'top' })
+      .raw().toBuffer({ resolveWithObject: true });
+    const px = quadro.data, canais = quadro.info.channels;
+
+    // Os dois scrims do CSS, aplicados como o navegador os empilha.
+    const rampa = (t, paradas) => {
+      if (t <= paradas[0][0]) return paradas[0][1];
+      for (let i = 0; i < paradas.length - 1; i++) {
+        const [p0, a0] = paradas[i], [p1, a1] = paradas[i + 1];
+        if (t >= p0 && t <= p1) return a0 + ((t - p0) / (p1 - p0)) * (a1 - a0);
+      }
+      return 0;
+    };
+    for (let y = 0; y < H; y++) {
+      const baixo = rampa((H - y) / H, [[0, 0.72], [0.34, 0.52], [0.62, 0]]);
+      const cima = rampa(y / H, [[0, 0.58], [0.12, 0.22], [0.26, 0]]);
+      const a = 1 - (1 - baixo) * (1 - cima);
+      for (let x = 0; x < W; x++) {
+        const i = (y * W + x) * canais;
+        px[i] = px[i] * (1 - a) + 10 * a;
+        px[i + 1] = px[i + 1] * (1 - a) + 9 * a;
+        px[i + 2] = px[i + 2] * (1 - a) + 8 * a;
+      }
+    }
+
+    const logo = await sharp(destino).resize({ width: LW }).toBuffer();
+    await sharp(px, { raw: { width: W, height: H, channels: canais } })
+      .composite([{ input: logo, left: LX, top: LY }])
+      .jpeg({ quality: 90 })
       .toFile(path.join(RAIZ, '_fontes', '_previa-logo-no-video.jpg'));
-    console.log('previa   _fontes/_previa-logo-no-video.jpg');
+    console.log('previa   _fontes/_previa-logo-no-video.jpg  (hero real, com scrim)');
   }
 })();

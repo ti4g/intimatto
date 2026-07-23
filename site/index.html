@@ -35,6 +35,9 @@
 
 <!-- O poster e o LCP: ele pinta antes do video ter um frame decodificado. -->
 <link rel="preload" as="image" href="img/hero/essence-poster.webp" fetchpriority="high">
+<!-- O logo agora e a marca do hero, nao enfeite de rodape: entra na mesma
+     leva do poster pra nao aparecer depois que a cliente ja olhou a tela. -->
+<link rel="preload" as="image" href="img/logo/logo.png" fetchpriority="high">
 
 <link rel="stylesheet" href="css/style.css">
 
@@ -87,6 +90,10 @@
 <header class="header">
   <!-- "./" e nao "/": o site vive em /intimatto/, entao a barra sozinha
        apontaria pra raiz do dominio e jogaria a cliente pra fora. -->
+  <!-- Enquanto o hero esta na tela este wordmark fica escondido: o logo da
+       loja ja esta grande na base do video, e repetir a marca em texto logo
+       acima dele so enche o topo. Ele volta na rolagem, quando o logo sai de
+       cena e o header vira barra de navegacao. -->
   <a class="marca" href="./">
     <span class="marca__nome voz-peso">Intimatto</span>
     <span class="marca__sub voz-ar">Delles</span>
@@ -94,7 +101,8 @@
   <!-- So aparece no desktop: no celular os tres blocos nao cabem em 375px -->
   <p class="header__local voz-ar">Palmas · TO</p>
   <nav class="header__links" aria-label="Contato">
-    <a class="header__link voz-ar" href="https://instagram.com/intimattodelles"
+    <a class="header__link header__link--fora voz-ar"
+       href="https://instagram.com/intimattodelles"
        target="_blank" rel="noopener">Instagram</a>
     <span class="header__ponto" aria-hidden="true"></span>
     <!-- Icone e nao a palavra "Provador": vale nas duas larguras (a 320px os
@@ -135,23 +143,29 @@
         <source src="img/hero/essence.mp4" type="video/mp4">
       </video>
     </div>
-    <!-- No celular isto pousa sobre o video (mesma celula do grid, com o
-         scrim por baixo). No desktop vai pra coluna ao lado, porque um video
-         9:16 sangrando numa tela larga viraria uma fatia. -->
-    <div class="hero__txt">
-      <!-- O fio vem antes do titulo: o ouro lidera o lockup em vez de
-           separar duas linhas de texto no meio. -->
-      <span class="hero__risco" aria-hidden="true"></span>
-      <!-- Duas vozes no mesmo lockup: "Coleção" na voz de ar, "Essence" na
-           voz de peso. Ate aqui a pagina so usava a primeira, e o titulo lia
-           como legenda em vez de nome de colecao. -->
-      <h1 class="hero__titulo" id="hero-titulo">
-        <span class="hero__titulo__rotulo voz-ar">Coleção</span>
-        <span class="hero__titulo__nome voz-peso">Essence</span>
-      </h1>
-      <!-- PLACEHOLDER: a frase e da loja, nao minha. Trocar pela voz dela. -->
-      <p class="hero__frase">A essência de cada uma.</p>
-    </div>
+    <!-- O logo da loja, e nao tipografia que imita o logo.
+
+         Ele pousa na BASE do video por medicao, nao por gosto: o dourado
+         composto sobre o meio do quadro da 2,33:1 e sobre o creme do desktop
+         da 1,42:1, mas sobre a base — onde o scrim ja e 0,66 — da 8,18:1.
+         Foi por isso que a tentativa anterior, com o logo centralizado, saiu
+         lavada.
+
+         No desktop o h1 vira grade de duas colunas espelhando o hero: o logo
+         continua sobre o video e o nome da colecao vai pro lado, em tinta
+         sobre papel. -->
+    <!-- So o logo. O video ja carrega a estacao sozinho, e o nome da colecao
+         escrito por cima virava a legenda que a direcao pedia pra nao existir.
+
+         O logo pousa na BASE do video por medicao, nao por gosto: o dourado
+         composto sobre o meio do quadro da 2,33:1 e sobre o creme do desktop
+         da 1,42:1, mas sobre a base — onde o scrim ja e forte — da 5,66:1.
+         Foi por isso que a tentativa anterior, com o logo centralizado, saiu
+         lavada. -->
+    <h1 class="hero__marca" id="hero-titulo">
+      <img class="hero__logo" src="img/logo/logo.png" width="800" height="436"
+           fetchpriority="high" decoding="async" alt="Intimatto Delles">
+    </h1>
   </section>
 
   <div class="fio" role="presentation"><span class="fio__traco"></span></div>

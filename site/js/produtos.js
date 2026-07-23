@@ -43,10 +43,46 @@ const PRODUTOS = [
   {
     slug: 'camisola-rose',
     nome: 'Camisola Renda Rosé',
-    preco: 'R$ 159,90', // PLACEHOLDER
+    preco: 'R$ 109,90', // A CONFERIR: a loja mandou "Camisola: 109,90" sem foto junto
     categoria: 'intima',
     tamanhos: ['P', 'M', 'G'],
     alt: 'Modelo veste camisola rosé de renda com robe combinando',
+  },
+  {
+    slug: 'vestido-preto-colado',
+    nome: 'Vestido Preto Justo',
+    preco: 'R$ 259,90', // confirmado pela loja
+    categoria: 'roupa',
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
+    alt: 'Modelo veste vestido preto midi justo de ombro único com fenda lateral',
+    larguras: [400, 800], // fonte 720x1280: nao ha 960
+  },
+  {
+    slug: 'blusa-verde',
+    nome: 'Blusa Verde Ombro Único',
+    preco: 'R$ 119,90', // PLACEHOLDER — estimado, a loja ainda nao passou
+    categoria: 'roupa',
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
+    alt: 'Modelo veste blusa verde claro de ombro único com fivela dourada e calça jeans wide',
+    larguras: [400, 800],
+  },
+  {
+    slug: 'calca-cinza',
+    nome: 'Calça Cinza com Cinto',
+    preco: 'R$ 239,90', // confirmado pela loja
+    categoria: 'roupa',
+    tamanhos: ['36', '38', '40', '42'], // PLACEHOLDER
+    alt: 'Modelo veste calça cinza de tecido com cinto lateral e blusa preta de ombro único',
+    larguras: [400, 800],
+  },
+  {
+    slug: 'conjunto-renda',
+    nome: 'Conjunto de Renda',
+    preco: 'R$ 104,90', // confirmado pela loja
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
+    alt: 'Modelo veste conjunto de renda azul petróleo, também disponível em preto, marrom e branco',
+    larguras: [400, 800],
   },
   {
     slug: 'jeans-wide',
@@ -57,12 +93,21 @@ const PRODUTOS = [
     alt: 'Modelo veste body preto com calça jeans wide leg azul claro',
   },
   {
-    slug: 'vestido-preto',
-    nome: 'Vestido Preto Midi',
-    preco: 'R$ 319,90', // confirmado pela loja
+    slug: 'vestido-marrom',
+    nome: 'Vestido Cetim Marrom',
+    preco: 'R$ 279,90', // PLACEHOLDER — estimado, a loja ainda nao passou
     categoria: 'roupa',
-    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER — a loja ainda nao passou
-    alt: 'Modelo veste vestido preto midi de gola alta sem mangas',
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
+    alt: 'Modelo veste vestido midi de cetim marrom com decote drapeado',
+    larguras: [400, 800],
+  },
+  {
+    slug: 'robe-preto',
+    nome: 'Robe de Renda Preto',
+    preco: 'R$ 129,90', // confirmado pela loja
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
+    alt: 'Modelo veste robe preto de renda transparente com faixa de amarrar',
   },
   {
     slug: 'calca-vinho',
@@ -74,6 +119,22 @@ const PRODUTOS = [
     larguras: [400, 800], // recortada da colagem: fonte tem ~480px, nao ha 960
   },
   {
+    slug: 'short-doll-branco',
+    nome: 'Short Doll Branco de Seda',
+    preco: 'R$ 219,90', // confirmado pela loja
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
+    alt: 'Modelo veste short doll branco de seda com acabamento em renda',
+  },
+  {
+    slug: 'vestido-preto',
+    nome: 'Vestido Preto Midi',
+    preco: 'R$ 319,90', // confirmado pela loja
+    categoria: 'roupa',
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER — a loja ainda nao passou
+    alt: 'Modelo veste vestido preto midi de gola alta sem mangas',
+  },
+  {
     slug: 'conjunto-vinho',
     nome: 'Conjunto Colete e Calça Vinho',
     preco: 'R$ 319,90', // confirmado pela loja
@@ -83,6 +144,15 @@ const PRODUTOS = [
     larguras: [400, 800], // recortada da colagem: fonte tem ~450px, nao ha 960
   },
   {
+    slug: 'short-preto',
+    nome: 'Short Alfaiataria Preto',
+    preco: 'R$ 169,90', // PLACEHOLDER — estimado, a loja ainda nao passou
+    categoria: 'roupa',
+    tamanhos: ['36', '38', '40', '42'], // PLACEHOLDER
+    alt: 'Modelo veste short preto de alfaiataria com blusa preta franzida',
+    larguras: [400, 800],
+  },
+  {
     slug: 'blusa-marinho',
     nome: 'Blusa Marinho Franzida',
     preco: 'R$ 109,90', // confirmado pela loja
@@ -90,6 +160,14 @@ const PRODUTOS = [
     tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
     alt: 'Modelo veste blusa marinho sem mangas com franzido lateral e calça jeans',
     larguras: [400, 800], // recortada da colagem: fonte tem ~490px, nao ha 960
+  },
+  {
+    slug: 'pijama-chemise',
+    nome: 'Pijama Chemise Preto',
+    preco: 'R$ 139,90', // confirmado pela loja
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
+    alt: 'Modelo veste pijama chemise preto com vivo branco e botões',
   },
   {
     slug: 'conjunto-marrom',

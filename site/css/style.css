@@ -234,6 +234,27 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .header__link:hover { color: var(--tinta); }
 
+/* Link que sai do site precisa PARECER link.
+
+   Sem isto "Instagram" le como rotulo — mesma cor, mesmo tamanho e mesma voz
+   do "Palmas · TO" ao lado, que nao clica em lugar nenhum. Nada indicava que
+   um leva pra fora e o outro nao.
+
+   O sublinhado e o fio dourado do projeto, nao o underline do navegador: 1px,
+   deslocado da base pra nao cortar a perna do "g", e em --ouro, que aqui e
+   decoracao e nao letra — a regra do projeto libera ouro como fio a vontade.
+   Continua minimalista porque nao acrescenta elemento nenhum: e a mesma
+   linguagem do divisor de secao, em escala de palavra. */
+.header__link--fora {
+  text-decoration: underline;
+  text-decoration-color: var(--ouro);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.45em;
+  transition: color 0.2s var(--curva), text-decoration-color 0.2s var(--curva);
+}
+
+.header__link--fora:hover { text-decoration-color: var(--tinta); }
+
 /* Icone e nao a palavra "Provador".
 
    Vale nas duas larguras — a 320px os tres blocos de texto estouravam a tela,
@@ -333,6 +354,35 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .header:not([data-fora-do-hero]) .header__ponto { background: var(--ouro-claro); }
   .header:not([data-fora-do-hero]) .header__provador__conta { background: var(--ouro-claro); }
 
+  /* Sobre o video o fio do link clareia junto com o resto: --ouro sobre a
+     cena escura ficaria quase invisivel e a afordancia se perderia. */
+  .header:not([data-fora-do-hero]) .header__link--fora {
+    text-decoration-color: var(--ouro-claro);
+  }
+  .header:not([data-fora-do-hero]) .header__link--fora:hover {
+    text-decoration-color: var(--branco);
+  }
+
+  /* O wordmark do topo sai de cena enquanto o hero esta na tela.
+
+     Nao e economia de pixel: o logo da loja esta logo abaixo, grande, dizendo
+     a mesma coisa melhor. Repetir a marca em texto a 40px de distancia do
+     desenho dela era o que mais enchia o topo.
+
+     visibility e nao display: o elemento continua ocupando seu lugar no flex,
+     entao o Instagram e a sacola nao pulam de posicao quando ele volta. E o
+     link some do foco do teclado, que e o certo — foco invisivel e pior que
+     link ausente. */
+  .header:not([data-fora-do-hero]) .marca {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .marca {
+    opacity: 1;
+    transition: opacity 0.3s var(--curva);
+  }
+
   /* Contorno branco so dentro do header sobre o video. Solto, este seletor
      valia pra pagina inteira e deixava o foco do teclado quase invisivel nos
      cards, que ficam sobre o creme. */
@@ -429,82 +479,119 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
       rgb(10 9 8 / 0.22) 12%,
       rgb(10 9 8 / 0) 26%
     ),
+    /* O scrim de baixo engordou pra sustentar o logo, que agora mora aqui.
+       Medido: com o gradiente antigo (0,66 / 0,30 / 60%) o logo dava 3,84:1
+       de media porque o topo do desenho — a silhueta em traco fino — caia
+       justamente onde o scrim ja tinha se dissolvido. Com este, 5,66:1.
+
+       O custo e escurecer o meio do quadro de 0,05 pra 0,13, e ai fica: mais
+       que isso comeca a apagar a roupa, que e o produto. */
     linear-gradient(
       to top,
-      rgb(10 9 8 / 0.66) 0%,
-      rgb(10 9 8 / 0.3) 30%,
-      rgb(10 9 8 / 0) 60%
+      rgb(10 9 8 / 0.72) 0%,
+      rgb(10 9 8 / 0.52) 34%,
+      rgb(10 9 8 / 0) 62%
     );
   pointer-events: none;
 }
 
-.hero__txt {
+/* ── A marca no hero ──────────────────────────────────────── */
+/* O h1 e o logo da loja, nao tipografia imitando o logo.
+
+   Ele pousa na BASE do video por medicao. O dourado do logo, ja composto com
+   o alfa que ele tem (o maximo do arquivo e 236, entao ele nunca e opaco de
+   verdade), rende:
+
+     meio do video, sem scrim ....... 2,33:1   lavado
+     creme do desktop ............... 1,42:1   praticamente invisivel
+     base do video, scrim 0,66 ...... 8,18:1   passa ate AAA
+
+   A tentativa anterior punha o logo centralizado e por isso saiu apagada.
+   Aqui ele vive onde o scrim ja e forte, e nao ha nada a reforcar. */
+
+.hero__marca {
   grid-row: 1;
   grid-column: 1;
   align-self: end;
   z-index: 1;
-  padding: 0 var(--passo) calc(1.6rem + env(safe-area-inset-bottom, 0px));
+  margin: 0;
+  padding: 0 var(--passo) calc(1.7rem + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.7rem;
+  gap: 0.85rem;
   color: var(--branco);
 }
 
-/* O lockup do titulo: rotulo pequeno na voz de ar, nome grande na voz de
-   peso. Antes era uma linha so em Jost 300 com tracking de 0,32em — a
-   configuracao de leveza maxima do sistema, que em corpo pequeno vira
-   textura e le como legenda. */
-.hero__titulo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25em;
-  margin: 0;
+/* 62vw teto 15rem: grande o suficiente pra ser a marca da pagina, pequeno o
+   suficiente pra caber inteiro na faixa onde o scrim passa de 0,38 — subir
+   mais joga o topo do desenho na zona clara, que e onde ele lava. */
+.hero__logo {
+  width: min(62vw, 15rem);
+  height: auto;
 }
 
-.hero__titulo__rotulo {
-  font-size: 0.625rem;
-  line-height: 1;
+/* Entra subindo, como o fio se desenha: uma vez, no load.
+
+   O LOGO NAO ANIMA OPACIDADE, e isto e deliberado.
+
+   Animacao com fill both segura o estado inicial ate o relogio andar. Se ele
+   nao andar — aba em segundo plano, motor de animacao suspenso — um fade que
+   comeca em 0 deixa a marca da loja invisivel por tempo indeterminado. Vi
+   acontecer em teste. E o mesmo perigo que este arquivo ja descreve no fio, e
+   aqui o elemento e o logo do cliente, entao a falha e pior.
+
+   Com transform sozinho o pior caso e o logo aparecer 10px mais baixo, que
+   ninguem percebe. O nome da colecao pode desvanecer porque e secundario: se
+   ele falhar, a marca e o video continuam de pe. */
+.hero__logo {
+  animation: marca-sobe 0.9s var(--curva) 0.2s backwards;
 }
 
-.hero__titulo__nome {
-  font-size: clamp(2.5rem, 13vw, 3.75rem);
-  line-height: 0.9;
-}
-
-.hero__risco {
-  width: 3.5rem;
-  height: 1px;
-  background: var(--ouro-claro);
-}
-
-.hero__frase {
-  margin: 0;
-  font-size: 0.8125rem;
-  line-height: 1.45;
-  max-width: 24ch;
+@keyframes marca-sobe {
+  from { transform: translateY(10px); }
+  to   { transform: none; }
 }
 
 @media (min-width: 48rem) {
+  /* Video CENTRADO, com papel dos dois lados.
+
+     Antes ele ficava na esquerda e a coluna da direita levava o texto do
+     hero. Sem esse texto a direita virava metade de tela vazia e o quadro
+     ficava encostado num canto, o que le como erro de layout e nao como
+     respiro. Centrado, o vazio dos dois lados vira moldura.
+
+     E continua sendo coluna, e nao video sangrando: 9:16 esticado numa tela
+     larga viraria uma fatia — a caixa tem 72dvh de altura e a largura toda
+     daria 2,2:1, cortando quase tudo. */
   .hero {
-    /* 0,55fr deixa a coluna do video perto de 0,78 num monitor comum: o mais
-       perto do 9:16 que da sem a coluna virar uma tira fina. */
-    grid-template-columns: minmax(0, 0.55fr) 1fr;
-    gap: var(--passo);
+    grid-template-columns: 1fr minmax(0, 24rem) 1fr;
+    gap: 0;
   }
-  /* Sem video por baixo, o texto volta a ser tinta sobre papel e o scrim
-     nao tem funcao. */
-  .hero__media::after { display: none; }
-  .hero__txt {
+
+  .hero__media { grid-column: 2; }
+
+  /* O scrim de cima sai (nao ha header flutuando aqui), o de baixo FICA: e
+     ele que sustenta o logo, que no desktop continua sobre o video. Sem isto
+     o logo cairia pra 2,33:1 do quadro cru. */
+  .hero__media::after {
+    background: linear-gradient(
+      to top,
+      rgb(10 9 8 / 0.72) 0%,
+      rgb(10 9 8 / 0.52) 34%,
+      rgb(10 9 8 / 0) 62%
+    );
+  }
+
+  /* O h1 vai pra mesma celula do video e o logo centra nele. Fora dessa
+     celula o logo cairia no creme, onde mede 1,42:1 e some. */
+  .hero__marca {
     grid-column: 2;
-    align-self: center;
-    padding: 0 var(--passo);
-    gap: 1rem;
-    color: var(--tinta);
+    align-items: center;
+    padding: 0 1.5rem 2rem;
   }
-  .hero__titulo__nome { font-size: clamp(2.75rem, 5vw, 4rem); }
-  .hero__risco { background: var(--ouro); }
-  .hero__frase { font-size: 0.9375rem; max-width: 28ch; color: var(--cinza); }
+
+  .hero__logo { width: min(72%, 13rem); }
 }
 
 /* ── Grade ────────────────────────────────────────────────── */
@@ -1284,4 +1371,9 @@ body:has(.modal[open]), body:has(.provador[open]), body:has(.inteira[open]) { ov
      fill both, mas declarar aqui deixa a intencao explicita. */
   .fio__traco { animation: none; transform: scaleX(1); }
   .sobe { opacity: 1; transform: none; }
+  /* A marca nasce posta. O atraso de 0,35s do nome da colecao, mesmo com a
+     duracao zerada, ainda seguraria o texto invisivel por um terco de
+     segundo — para quem pediu menos movimento isso le como falha de
+     carregamento, nao como animacao curta. */
+  .hero__logo { animation: none; transform: none; }
 }

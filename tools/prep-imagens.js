@@ -65,7 +65,51 @@ const alvos = [
   { fonte: '_recortes/calca-vinho.png',    slug: 'calca-vinho',   posicao: 'bottom' },
   { fonte: '_recortes/conjunto-vinho.png', slug: 'conjunto-vinho', posicao: 'centre' },
   { fonte: '_recortes/blusa-marinho.png',  slug: 'blusa-marinho',  posicao: 'top' },
+
+  /* ── Lote de 2026-07-23 ────────────────────────────────────
+
+     Nove pecas novas, em tres formatos de fonte diferentes:
+
+       720x1280 (0,563)   fotos da loja, celular em retrato. Sao as mais
+                          fora de proporcao do lote: chegar a 4:5 custa 380px
+                          de altura, entao a janela e escolhida peca a peca
+                          pra manter o rosto E a peca. O que sobra da barra
+                          fica na foto inteira, que e um toque adiante.
+       1024x1280 (0,800)  ja nasce 4:5, nao corta nada.
+       demais             catalogo do fornecedor, corte pequeno.
+
+     As de 720 de largura saem so em 400 e 800 (o 800 ja e 1,11x de ampliacao,
+     aceitavel; 960 seria 1,33x). Quem declara isso pro site e o campo
+     'larguras' em produtos.js — se esquecer la, o srcset promete um arquivo
+     que nao existe e a foto some em tela densa. */
+
+  { fonte: 'IMG-20260720-WA0107.jpg',            slug: 'calca-cinza',        recorte: { left: 0, top: 100, width: 720, height: 900 } },
+  { fonte: 'IMG-20260720-WA0108.jpg',            slug: 'vestido-preto-colado', recorte: { left: 0, top: 80, width: 720, height: 900 } },
+  { fonte: 'novas-2026-07-20/17.27.59.jpg',      slug: 'short-preto',        recorte: { left: 0, top: 0,   width: 720, height: 900 } },
+  { fonte: 'novas-2026-07-20/17.28.00(1).jpg',   slug: 'vestido-marrom',     recorte: { left: 0, top: 100, width: 720, height: 900 } },
+  { fonte: 'novas-2026-07-20/17.28.00(3).jpg',   slug: 'blusa-verde',        recorte: { left: 0, top: 50,  width: 720, height: 900 } },
+
+  // Ja e 4:5 exato: a unica do lote que nao perde um pixel.
+  { fonte: 'IMG-20260720-WA0111.jpg',            slug: 'short-doll-branco',  recorte: { left: 0, top: 0, width: 1024, height: 1280 } },
+
+  // 0,837: sobra largura, nao altura. Os 47px saem repartidos pra modelo
+  // continuar centrada.
+  { fonte: 'IMG-20260720-WA0110.jpg',            slug: 'robe-preto',         recorte: { left: 24, top: 0, width: 1024, height: 1280 } },
+
+  { fonte: 'IMG-20260720-WA0112.jpg',            slug: 'pijama-chemise',     recorte: { left: 0, top: 100, width: 1042, height: 1302 } },
+
+  // Colagem: figura principal a esquerda, tres circulos de cor a direita.
+  // A janela mantem o rosto e os dois primeiros circulos — as outras cores
+  // aparecem inteiras na foto sem corte.
+  { fonte: 'IMG-20260720-WA0113.jpg',            slug: 'conjunto-renda',     recorte: { left: 0, top: 60, width: 750, height: 937 } },
 ];
+
+// Fonte de 720 ou 750 de largura: 960 seria ampliacao de 1,3x, que engorda o
+// arquivo sem entregar detalhe. Tem que bater com 'larguras' no produtos.js.
+const SO_ATE_800 = new Set([
+  'calca-cinza', 'vestido-preto-colado', 'short-preto', 'vestido-marrom',
+  'blusa-verde', 'conjunto-renda',
+]);
 
 /* Fonte pequena nao ganha nada sendo ampliada: 960 a partir de 450 e 2,1x de
    borrao ocupando 100 KB. Melhor entregar o que existe e deixar o navegador
@@ -121,7 +165,8 @@ async function main() {
         ? s.extract(alvo.recorte)
         : s.resize(width, Math.round(width / 0.8), { fit: 'cover', position: alvo.posicao });
 
-    const larguras = alvo.posicao ? LARGURAS_BAIXA : LARGURAS;
+    const larguras =
+      alvo.posicao || SO_ATE_800.has(alvo.slug) ? LARGURAS_BAIXA : LARGURAS;
 
     for (const largura of larguras) {
       const base = cortar(sharp(src)).resize({ width: largura });
