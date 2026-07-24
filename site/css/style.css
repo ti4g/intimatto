@@ -290,25 +290,32 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
    O texto diz "no provador", e nao "comprado": a venda so fecha na conversa
    do WhatsApp. Comemorar como pedido feito faria a cliente achar que ja pediu
-   e nao mandar a mensagem, que e o unico gesto que a loja precisa. */
+   e nao mandar a mensagem, que e o unico gesto que a loja precisa.
+
+   Mora no rodape da tela porque e la que o polegar esta e pra onde o olho ja
+   aponta no celular. A prateleira que saiu daqui era outra coisa: ficava
+   PERMANENTE, comendo faixa de tela o tempo todo e obrigando o rodape a ter
+   padding extra. Esta aparece por 2,5s e some. */
 .aviso {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 20;
   margin: 0;
   display: flex;
   align-items: center;
   gap: 0.7rem;
   padding: 0.6rem var(--passo);
+  padding-bottom: calc(0.6rem + env(safe-area-inset-bottom));
   background: var(--branco);
-  border-bottom: 1px solid var(--ouro);
+  border-top: 1px solid var(--ouro);
 
-  /* Desliza de baixo da faixa. O deslocamento e pequeno de proposito: com
-     -100% ela nasceria em cima do header e, como filha dele, apareceria POR
-     CIMA da marca no meio da transicao. */
-  transform: translateY(-0.6rem);
+  /* Sobe de fora da tela. Deslocamento curto de proposito: a faixa aparece
+     mais por opacidade do que por viagem — entrada longa vinda da borda
+     rouba a atencao da propria mensagem. */
+  transform: translateY(0.75rem);
   opacity: 0;
+  /* Nao captura toque: a cliente continua rolando o catalogo por cima dela,
+     e o que estiver embaixo segue clicavel. */
   pointer-events: none;
   transition: transform 0.4s var(--curva), opacity 0.3s var(--curva);
 }

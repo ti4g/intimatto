@@ -119,22 +119,6 @@
     </button>
   </nav>
   <div class="fio" role="presentation"><span class="fio__traco"></span></div>
-
-  <!-- A confirmacao escrita. O anel diz que algo aconteceu; esta faixa diz o
-       QUE aconteceu.
-
-       Vive dentro do <header> e e absoluta: assim pousa colada embaixo da
-       faixa sem ninguem medir altura em JS, e acompanha o header quando ele
-       gruda no topo. Filho absoluto nao participa do flex, entao nao empurra
-       a marca nem a sacola.
-
-       Fica sempre no DOM, so escondida por opacidade — regiao aria-live que
-       nasce com [hidden] nao esta na arvore de acessibilidade e nao anuncia
-       nada quando reaparece. -->
-  <p class="aviso" id="aviso" role="status" aria-live="polite">
-    <img class="aviso__foto" id="aviso-foto" width="960" height="1200" alt="" decoding="async">
-    <span class="aviso__texto" id="aviso-texto"></span>
-  </p>
 </header>
 
 <main>
@@ -250,6 +234,25 @@
     <p class="rodape__cnpj">CNPJ 47.047.775/0001-86</p>
   </div>
 </footer>
+
+<!-- A confirmacao escrita. O anel diz que algo aconteceu; esta faixa diz o QUE
+     aconteceu.
+
+     Fica no rodape da tela, e nao no topo: e onde o polegar esta e pra onde o
+     olho ja aponta no celular. Nao repete o erro da prateleira antiga, que era
+     PERMANENTE e comia uma faixa de tela o tempo todo — esta some sozinha em
+     2,5s e nao captura clique nenhum.
+
+     Filha direta do <body>, fora do <main>: dentro de #catalogo ela sumiria
+     junto quando a cliente entrasse na tela do provador.
+
+     Fica sempre no DOM, so escondida por opacidade — regiao aria-live que
+     nasce com [hidden] nao esta na arvore de acessibilidade e nao anuncia nada
+     quando reaparece. -->
+<p class="aviso" id="aviso" role="status" aria-live="polite">
+  <img class="aviso__foto" id="aviso-foto" width="960" height="1200" alt="" decoding="async">
+  <span class="aviso__texto" id="aviso-texto"></span>
+</p>
 
 <dialog class="modal" id="modal" aria-labelledby="modal-nome">
   <button class="modal__fechar" id="modal-fechar" type="button" aria-label="Fechar">
