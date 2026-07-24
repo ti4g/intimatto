@@ -16,9 +16,7 @@ const WHATSAPP = '5563991266674';
     slug      arquivo em img/produtos/{slug}-{400,800,960}.{avif,webp}
     nome      aparece no card e na mensagem do WhatsApp
     preco     string pronta, ja formatada
-    categoria 'roupa' | 'intima' | 'praia'. O filtro nao existe no piloto (com
-              6 pecas seria decoracao), mas o campo ja nasce aqui pra ele
-              entrar em poucas linhas depois
+    categoria  um dos ids de CATEGORIAS, logo abaixo
     tamanhos  varia peca a peca, por isso e campo e nao const global
     alt       descricao pra leitor de tela. Nao e opcional
     larguras  OPCIONAL. So pra foto cuja fonte e pequena demais pra gerar 960.
@@ -31,12 +29,32 @@ const WHATSAPP = '5563991266674';
   (2 col no celular, 3 no desktop).
 */
 
+/*
+  As categorias do filtro, na ordem em que os botoes aparecem.
+
+  O eixo e PARTE DO CORPO, e nao tipo de produto. E como a cliente procura:
+  ela quer "uma blusa" ou "uma calca", nao "uma roupa". Moda intima fica de
+  fora desse eixo porque e a outra metade da loja — a bio deles diz "Moda
+  Intima e composicoes de Looks", entao sao dois assuntos, nao um.
+
+  Categoria sem nenhuma peca nao vira botao: o app.js so desenha o que tem
+  conteudo. Da pra deixar uma linha aqui esperando as fotos chegarem sem
+  sujar a tela — foi o que aconteceu com praia.
+*/
+const CATEGORIAS = [
+  { id: 'cima',   nome: 'Parte de cima' },
+  { id: 'baixo',  nome: 'Parte de baixo' },
+  { id: 'unica',  nome: 'Peça única' },
+  { id: 'intima', nome: 'Moda íntima' },
+  { id: 'praia',  nome: 'Praia' },  // sem peca ainda: nao aparece
+];
+
 const PRODUTOS = [
   {
     slug: 'vestido-vinho',
     nome: 'Vestido Vinho Gola Alta',
     preco: 'R$ 289,90', // PLACEHOLDER
-    categoria: 'roupa',
+    categoria: 'unica',
     tamanhos: ['P', 'M', 'G'],
     alt: 'Modelo veste vestido vinho midi de gola alta com recorte no busto',
   },
@@ -52,7 +70,7 @@ const PRODUTOS = [
     slug: 'vestido-preto-colado',
     nome: 'Vestido Preto Justo',
     preco: 'R$ 259,90', // confirmado pela loja
-    categoria: 'roupa',
+    categoria: 'unica',
     tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
     alt: 'Modelo veste vestido preto midi justo de ombro único com fenda lateral',
     larguras: [400, 800], // fonte 720x1280: nao ha 960
@@ -61,7 +79,7 @@ const PRODUTOS = [
     slug: 'blusa-verde',
     nome: 'Blusa Verde Ombro Único',
     preco: 'R$ 119,90', // PLACEHOLDER — estimado, a loja ainda nao passou
-    categoria: 'roupa',
+    categoria: 'cima',
     tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
     alt: 'Modelo veste blusa verde claro de ombro único com fivela dourada e calça jeans wide',
     larguras: [400, 800],
@@ -70,7 +88,7 @@ const PRODUTOS = [
     slug: 'calca-cinza',
     nome: 'Calça Cinza com Cinto',
     preco: 'R$ 239,90', // confirmado pela loja
-    categoria: 'roupa',
+    categoria: 'baixo',
     tamanhos: ['36', '38', '40', '42'], // PLACEHOLDER
     alt: 'Modelo veste calça cinza de tecido com cinto lateral e blusa preta de ombro único',
     larguras: [400, 800],
@@ -88,7 +106,7 @@ const PRODUTOS = [
     slug: 'jeans-wide',
     nome: 'Calça Wide Leg Jeans',
     preco: 'R$ 229,90', // PLACEHOLDER
-    categoria: 'roupa',
+    categoria: 'baixo',
     tamanhos: ['36', '38', '40', '42'],
     alt: 'Modelo veste body preto com calça jeans wide leg azul claro',
   },
@@ -96,7 +114,7 @@ const PRODUTOS = [
     slug: 'vestido-marrom',
     nome: 'Vestido Cetim Marrom',
     preco: 'R$ 279,90', // PLACEHOLDER — estimado, a loja ainda nao passou
-    categoria: 'roupa',
+    categoria: 'unica',
     tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
     alt: 'Modelo veste vestido midi de cetim marrom com decote drapeado',
     larguras: [400, 800],
@@ -113,7 +131,7 @@ const PRODUTOS = [
     slug: 'calca-vinho',
     nome: 'Calça Flare Vinho',
     preco: 'R$ 249,90', // confirmado pela loja
-    categoria: 'roupa',
+    categoria: 'baixo',
     tamanhos: ['36', '38', '40', '42'], // PLACEHOLDER
     alt: 'Modelo veste calça flare vinho de alfaiataria com blusa preta',
     larguras: [400, 800], // recortada da colagem: fonte tem ~480px, nao ha 960
@@ -130,7 +148,7 @@ const PRODUTOS = [
     slug: 'vestido-preto',
     nome: 'Vestido Preto Midi',
     preco: 'R$ 319,90', // confirmado pela loja
-    categoria: 'roupa',
+    categoria: 'unica',
     tamanhos: ['P', 'M', 'G'], // PLACEHOLDER — a loja ainda nao passou
     alt: 'Modelo veste vestido preto midi de gola alta sem mangas',
   },
@@ -138,7 +156,7 @@ const PRODUTOS = [
     slug: 'conjunto-vinho',
     nome: 'Conjunto Colete e Calça Vinho',
     preco: 'R$ 319,90', // confirmado pela loja
-    categoria: 'roupa',
+    categoria: 'unica',
     tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
     alt: 'Modelo veste conjunto vinho de colete alfaiataria e calça reta',
     larguras: [400, 800], // recortada da colagem: fonte tem ~450px, nao ha 960
@@ -147,7 +165,7 @@ const PRODUTOS = [
     slug: 'short-preto',
     nome: 'Short Alfaiataria Preto',
     preco: 'R$ 169,90', // PLACEHOLDER — estimado, a loja ainda nao passou
-    categoria: 'roupa',
+    categoria: 'baixo',
     tamanhos: ['36', '38', '40', '42'], // PLACEHOLDER
     alt: 'Modelo veste short preto de alfaiataria com blusa preta franzida',
     larguras: [400, 800],
@@ -156,7 +174,7 @@ const PRODUTOS = [
     slug: 'blusa-marinho',
     nome: 'Blusa Marinho Franzida',
     preco: 'R$ 109,90', // confirmado pela loja
-    categoria: 'roupa',
+    categoria: 'cima',
     tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
     alt: 'Modelo veste blusa marinho sem mangas com franzido lateral e calça jeans',
     larguras: [400, 800], // recortada da colagem: fonte tem ~490px, nao ha 960
@@ -173,7 +191,7 @@ const PRODUTOS = [
     slug: 'conjunto-marrom',
     nome: 'Conjunto Pantalona Marrom',
     preco: 'R$ 319,90', // PLACEHOLDER
-    categoria: 'roupa',
+    categoria: 'unica',
     tamanhos: ['P', 'M', 'G'],
     alt: 'Modelo veste conjunto marrom de top tomara que caia e calça pantalona',
   },
@@ -181,7 +199,7 @@ const PRODUTOS = [
     slug: 'polo-preta',
     nome: 'Polo Canelada Preta',
     preco: 'R$ 129,90', // PLACEHOLDER
-    categoria: 'roupa',
+    categoria: 'cima',
     tamanhos: ['P', 'M', 'G'],
     alt: 'Modelo veste polo preta canelada com calça jeans escura',
   },

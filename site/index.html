@@ -171,7 +171,11 @@
   <div class="fio" role="presentation"><span class="fio__traco"></span></div>
 
   <section class="grade-secao" aria-label="Peças">
-    <span class="grade-conta voz-ar" id="grade-conta"></span>
+    <!-- Os botoes sao montados pelo app.js a partir de CATEGORIAS, e so entra
+         categoria que tem peca. O grupo fica vazio no HTML de proposito: sem
+         JS nao ha grade pra filtrar, entao um filtro estatico so mentiria. -->
+    <div class="filtro" id="filtro" role="group" aria-label="Filtrar por categoria"></div>
+    <span class="grade-conta voz-ar" id="grade-conta" role="status"></span>
     <ul class="grade" id="grade"></ul>
   </section>
 </section>

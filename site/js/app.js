@@ -50,17 +50,67 @@ const Peca = (function () {
     );
   }
 
+  /* ── O filtro ───────────────────────────────────────────── */
+
+  const TODAS = 'todas';
+  let categoriaAtiva = TODAS;
+  let jaPintou = false;
+
+  const doFiltro = () =>
+    categoriaAtiva === TODAS
+      ? PRODUTOS
+      : PRODUTOS.filter((p) => p.categoria === categoriaAtiva);
+
+  function montarFiltro() {
+    const barra = document.getElementById('filtro');
+    if (!barra || typeof CATEGORIAS === 'undefined') return;
+
+    /* So entra categoria que tem peca. Botao que filtra pra zero e uma porta
+       que abre num comodo vazio — e assim uma categoria pode ficar cadastrada
+       esperando as fotos chegarem sem aparecer na tela. */
+    const comPeca = CATEGORIAS.filter((c) =>
+      PRODUTOS.some((p) => p.categoria === c.id)
+    );
+
+    // Uma categoria so nao e escolha: seria um botao que nao faz nada.
+    if (comPeca.length < 2) return;
+
+    barra.innerHTML = [{ id: TODAS, nome: 'Todas' }, ...comPeca]
+      .map(
+        (c) =>
+          `<button class="filtro__botao" type="button" data-cat="${esc(c.id)}" ` +
+          `aria-pressed="${c.id === categoriaAtiva}">${esc(c.nome)}</button>`
+      )
+      .join('');
+
+    barra.addEventListener('click', (e) => {
+      const botao = e.target.closest('.filtro__botao');
+      if (!botao || botao.dataset.cat === categoriaAtiva) return;
+
+      categoriaAtiva = botao.dataset.cat;
+      barra.querySelectorAll('.filtro__botao').forEach((b) => {
+        b.setAttribute('aria-pressed', String(b.dataset.cat === categoriaAtiva));
+      });
+      // Traz o botao escolhido pra dentro da vista: na fita rolada, tocar no
+      // ultimo chip deixaria ele meio cortado na borda.
+      botao.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      renderGrade();
+    });
+  }
+
   /* ── Grade ──────────────────────────────────────────────── */
 
   function renderGrade() {
     const alvo = document.getElementById('grade');
     if (!alvo) return;
 
+    const lista = doFiltro();
+
     // Conta so o que abre. Peca "Em breve" ainda nao e peca a venda, e
     // anunciar 8 quando 6 funcionam e promessa que a pagina nao cumpre.
     const conta = document.getElementById('grade-conta');
     if (conta) {
-      const n = PRODUTOS.filter((p) => p.slug).length;
+      const n = lista.filter((p) => p.slug).length;
       conta.textContent = n === 1 ? '1 peça' : `${n} peças`;
     }
 
@@ -68,9 +118,19 @@ const Peca = (function () {
     // dentro da fileira e nao ao longo do catalogo inteiro.
     const cascata = (i) => `--i:${i % 3}`;
 
-    alvo.innerHTML = PRODUTOS
+    alvo.innerHTML = lista
       .map((p, i) => (p.slug ? cardComFoto(p, i) : cardSemFoto(p, i)))
       .join('');
+
+    /* Na primeira pintura os cards sobem em cascata, revelados pelo
+       IntersectionObserver. Ao FILTRAR eles ja nascem visiveis: filtrar
+       precisa ser instantaneo, e refazer o fade escalonado a cada toque faria
+       a grade piscar. O observador tambem nao serviria — ele so revela o que
+       entra na tela, e as pecas filtradas ja estao nela. */
+    if (jaPintou) {
+      alvo.querySelectorAll('.sobe').forEach((el) => el.setAttribute('data-visivel', ''));
+    }
+    jaPintou = true;
 
     alvo.querySelectorAll('.peca__botao').forEach((b) => {
       b.addEventListener('click', () => abrir(b.dataset.slug));
@@ -425,6 +485,7 @@ const Peca = (function () {
   const wppRodape = document.getElementById('rodape-wpp');
   if (wppRodape) wppRodape.href = `https://wa.me/${WHATSAPP}`;
 
+  montarFiltro();
   renderGrade();
   respeitarMovimento();
   observar();

@@ -658,6 +658,68 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   color: var(--cinza);
 }
 
+/* ── O filtro ─────────────────────────────────────────────── */
+/* Fita de categorias acima da grade.
+
+   O eixo e parte do corpo, nao tipo de produto — ver a nota em produtos.js.
+
+   Rola na horizontal no celular em vez de quebrar linha: com cinco rotulos em
+   Jost tracked, quebrar deixaria um chip solto na segunda linha e a barra
+   passaria a ocupar o dobro da altura logo acima da primeira foto, que e o
+   lugar mais caro da pagina. */
+.filtro {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+  overflow-x: auto;
+  /* Sangra ate a borda da tela e devolve o respiro por dentro: assim o
+     primeiro chip alinha com a grade e o ultimo nao fica colado na borda
+     quando a fita esta rolada ate o fim. */
+  margin-left: calc(var(--passo) * -1);
+  margin-right: calc(var(--passo) * -1);
+  padding: 0 var(--passo) 0.15rem;
+  scroll-padding: 0 var(--passo);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.filtro::-webkit-scrollbar { display: none; }
+
+/* Mesmo desenho do chip de tamanho do provador: a pagina ja ensinou esse
+   controle uma vez, entao ele nao precisa ser aprendido de novo. */
+/* 0,65rem de respiro vertical leva o chip a ~36px de alvo, e nao aos 44 que
+   o projeto usa no X de tirar peca e no icone do provador. E a mesma licenca
+   ja tomada nos passos de quantidade: errar aqui custa ver a categoria errada
+   e tocar de novo, nao perder uma peca. E a fita fica logo acima da primeira
+   foto, que e o espaco mais caro da pagina — 44px empurrariam a grade pra
+   baixo da dobra. */
+.filtro__botao {
+  flex-shrink: 0;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--fio);
+  font-family: 'Jost', system-ui, sans-serif;
+  font-size: 0.5625rem;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: var(--letra-ar);
+  text-indent: var(--letra-ar); /* compensa o tracking do ultimo caractere */
+  color: var(--cinza);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.2s var(--curva), color 0.2s var(--curva),
+              background 0.2s var(--curva);
+}
+
+.filtro__botao:hover { border-color: var(--tinta); color: var(--tinta); }
+
+/* Ouro como campo com tinta em cima — ouro como letra reprova em AA. Mesma
+   regra do botao do WhatsApp, do disco de contagem e do chip de tamanho. */
+.filtro__botao[aria-pressed='true'] {
+  background: var(--ouro);
+  border-color: var(--ouro);
+  color: var(--tinta);
+}
+
 .grade {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
