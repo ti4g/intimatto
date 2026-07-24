@@ -561,26 +561,78 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    A tentativa anterior punha o logo centralizado e por isso saiu apagada.
    Aqui ele vive onde o scrim ja e forte, e nao ha nada a reforcar. */
 
+/* CENTRADO, e nao encostado na esquerda.
+
+   Alinhado a esquerda e sozinho, o logo lia como marca d'agua: um desenho
+   pousado num canto por acaso. Com peso em cima (o fio) e embaixo (o bordao),
+   e o eixo no meio, os tres viram uma coisa so — e ai o vazio em volta e
+   moldura, nao sobra. */
 .hero__marca {
   grid-row: 1;
   grid-column: 1;
   align-self: end;
   z-index: 1;
   margin: 0;
-  padding: 0 var(--passo) calc(1.7rem + env(safe-area-inset-bottom, 0px));
+  padding: 0 var(--passo) calc(1.9rem + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.85rem;
+  align-items: center;
+  text-align: center;
+  gap: 0.8rem;
   color: var(--branco);
 }
 
-/* 62vw teto 15rem: grande o suficiente pra ser a marca da pagina, pequeno o
-   suficiente pra caber inteiro na faixa onde o scrim passa de 0,38 — subir
-   mais joga o topo do desenho na zona clara, que e onde ele lava. */
+/* O fio que abre o lockup.
+
+   Mesma qualidade do divisor de secao — traco continuo de 1px em dourado — em
+   escala de assinatura. Se desenha do centro pras pontas, e nao da esquerda:
+   num lockup centrado, comecar por um lado puxaria o olho pra fora do eixo. */
+.hero__fio {
+  width: 3.25rem;
+  height: 1px;
+  background: var(--ouro-claro);
+  transform-origin: center;
+  animation: hero-fio-desenha 1s var(--curva) 0.1s both;
+}
+
+/* Comeca em 0,2 e nao em 0, pelo mesmo motivo do logo logo abaixo: animacao
+   com fill segura o estado inicial ate o relogio andar, e um fio que nasce em
+   scaleX(0) fica invisivel pra sempre se ela nao rodar — justo a peca que
+   ancora o topo do lockup. Crescer 5x ainda le como traco se desenhando, e o
+   pior caso e um risco curto no lugar certo. */
+@keyframes hero-fio-desenha {
+  from { transform: scaleX(0.2); }
+  to   { transform: scaleX(1); }
+}
+
+/* 56vw teto 13rem. Menor que os 62vw de quando ele estava sozinho: com fio e
+   bordao em volta, o conjunto inteiro precisa caber na faixa onde o scrim
+   ainda segura — subir mais joga o topo do desenho na zona clara do quadro,
+   que e onde o dourado lava. */
 .hero__logo {
-  width: min(62vw, 15rem);
+  width: min(56vw, 13rem);
   height: auto;
+}
+
+/* O bordao da loja, tirado da bio deles. */
+.hero__bordao {
+  font-size: 0.5625rem;
+  line-height: 1.5;
+  animation: marca-entra 0.9s var(--curva) 0.45s backwards;
+}
+
+/* "Delles" e "Elas" em dourado: o trocadilho E a marca, e em caps tracked,
+   sem cor, ele desaparece no meio da linha. Sobre a base escura do video o
+   ouro claro tem contraste de sobra — e a mesma cor que o bloco preto do
+   rodape ja usa. */
+.hero__bordao b {
+  font-weight: inherit;
+  color: var(--ouro-claro);
+}
+
+@keyframes marca-entra {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* Entra subindo, como o fio se desenha: uma vez, no load.
@@ -1473,9 +1525,11 @@ body:has(.modal[open]), body:has(.provador[open]), body:has(.inteira[open]) { ov
      fill both, mas declarar aqui deixa a intencao explicita. */
   .fio__traco { animation: none; transform: scaleX(1); }
   .sobe { opacity: 1; transform: none; }
-  /* A marca nasce posta. O atraso de 0,35s do nome da colecao, mesmo com a
-     duracao zerada, ainda seguraria o texto invisivel por um terco de
-     segundo — para quem pediu menos movimento isso le como falha de
-     carregamento, nao como animacao curta. */
+  /* O lockup inteiro nasce posto. Os atrasos escalonados (0,1s no fio, 0,45s
+     no bordao), mesmo com a duracao zerada, ainda segurariam cada parte no
+     estado inicial por ate meio segundo — para quem pediu menos movimento
+     isso le como falha de carregamento, nao como animacao curta. */
   .hero__logo { animation: none; transform: none; }
+  .hero__fio { animation: none; transform: scaleX(1); }
+  .hero__bordao { animation: none; opacity: 1; transform: none; }
 }
