@@ -171,34 +171,6 @@ const Peca = (function () {
     menosMovimento.addEventListener('change', aplicar);
   }
 
-  /* ── Header sobre o hero ────────────────────────────────── */
-  /* O header e fixo, entao ele acompanha a rolagem e o provador fica sempre
-     alcancavel — era esse o trabalho da prateleira que saiu.
-
-     So que sobre o video a letra e branca, e branca sobre o creme do catalogo
-     seria invisivel. Este observador diz ao CSS quando o hero deixou de estar
-     atras do header. IntersectionObserver e nao listener de scroll, como o
-     resto da pagina. */
-
-  function vigiarHero() {
-    const header = document.querySelector('.header');
-    const hero = document.querySelector('.hero');
-    if (!header || !hero) return;
-
-    if (!('IntersectionObserver' in window)) {
-      header.setAttribute('data-fora-do-hero', '');
-      return;
-    }
-
-    new IntersectionObserver(
-      ([e]) => header.toggleAttribute('data-fora-do-hero', !e.isIntersecting),
-      // Encolhe o topo da area observada na altura do proprio header: o hero
-      // "sai" quando a base dele passa por baixo da faixa, nao quando some
-      // da tela inteira.
-      { rootMargin: '-64px 0px 0px 0px' }
-    ).observe(hero);
-  }
-
   /* ── Modal ──────────────────────────────────────────────── */
 
   const dlg = document.getElementById('modal');
@@ -274,18 +246,74 @@ const Peca = (function () {
   function levarAoProvador() {
     if (!pecaAberta || !tamanhoEscolhido) return;
 
+    /* Copia antes de qualquer coisa: fechar o modal nao zera estas variaveis,
+       mas abrir outra peca zera — e a confirmacao roda depois do voo, meio
+       segundo no futuro. */
+    const p = pecaAberta;
+    const tamanho = tamanhoEscolhido;
+
     /* Guarda a posicao da foto ANTES de fechar o modal: depois de fechado o
        elemento sai da tela e o retangulo zera. */
     const foto = document.querySelector('.modal__foto');
     const origem = foto ? foto.getBoundingClientRect() : null;
 
-    Carrinho.adicionar(pecaAberta.slug, tamanhoEscolhido);
+    Carrinho.adicionar(p.slug, tamanho);
 
     // Fecha e devolve a cliente pro catalogo. O voo da foto ate o header e o
     // que conta o que aconteceu — sem ele, o modal some e a peca parece ter
     // evaporado.
     if (dlg.open) dlg.close();
-    if (foto) voarParaOProvador(foto, origem);
+
+    /* Se o voo nao rolar — "Reduzir movimento" ligado, icone fora da tela — a
+       confirmacao nao pode sumir junto. Ela e barata e roda de qualquer jeito;
+       sob reduced-motion o proprio CSS neutraliza o movimento e sobra o texto,
+       que e o que importa. */
+    const confirmar = () => confirmarEntrada(p, tamanho);
+    if (!voarParaOProvador(foto, origem, confirmar)) confirmar();
+  }
+
+  /* A confirmacao: anel no icone, salto na contagem e a faixa escrita.
+
+     Separada do voo de proposito. O voo e o floreio; isto e o recado. Se um
+     nao acontecer, o outro ainda avisa que a peca entrou. */
+  const TEMPO_AVISO = 2500;
+  let apagarPulso;
+  let apagarAviso;
+
+  function confirmarEntrada(p, tamanho) {
+    const destino = document.getElementById('abrir-provador');
+    if (destino) {
+      /* Tirar e repor com um reflow no meio. Sem isso, levar duas pecas
+         seguidas so anima a primeira: o atributo ja esta la e o navegador nao
+         tem por que reiniciar a animacao. */
+      destino.removeAttribute('data-recebeu');
+      void destino.offsetWidth;
+      destino.setAttribute('data-recebeu', '');
+
+      clearTimeout(apagarPulso);
+      apagarPulso = setTimeout(() => destino.removeAttribute('data-recebeu'), 700);
+    }
+
+    const aviso = document.getElementById('aviso');
+    if (!aviso) return;
+
+    document.getElementById('aviso-foto').src = `img/produtos/${p.slug}-400.webp`;
+
+    /* textContent e nao innerHTML: o nome vem do produtos.js, que e editado a
+       mao, e aqui ele entra em elemento separado justamente pra nao haver
+       string de HTML pra escapar. */
+    const texto = document.getElementById('aviso-texto');
+    texto.textContent = '';
+    const nome = document.createElement('strong');
+    nome.textContent = p.nome;
+    const onde = document.createElement('span');
+    onde.className = 'aviso__onde';
+    onde.textContent = ` · Tam ${tamanho} no provador`;
+    texto.append(nome, onde);
+
+    aviso.setAttribute('data-visivel', '');
+    clearTimeout(apagarAviso);
+    apagarAviso = setTimeout(() => aviso.removeAttribute('data-visivel'), TEMPO_AVISO);
   }
 
   /* A foto sai do modal e pousa no botao do provador.
@@ -294,13 +322,13 @@ const Peca = (function () {
      ONDE ela entrou, que e a pergunta que a cliente faria em seguida. O
      destino e o header, que e fixo — entao ele esta sempre na tela, mesmo
      que ela esteja no fim do catalogo. */
-  function voarParaOProvador(foto, origem) {
+  function voarParaOProvador(foto, origem, aoPousar) {
     const menosMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const destino = document.getElementById('abrir-provador');
-    if (menosMovimento || !origem || !destino) return;
+    if (menosMovimento || !foto || !origem || !destino) return false;
 
     const chegada = destino.getBoundingClientRect();
-    if (!chegada.width) return; // escondido por CSS: nao ha pra onde voar
+    if (!chegada.width) return false; // escondido por CSS: nao ha pra onde voar
 
     const voo = foto.cloneNode(true);
     voo.className = 'voo';
@@ -320,15 +348,17 @@ const Peca = (function () {
       voo.style.opacity = '0';
     });
 
+    // A confirmacao so dispara quando a foto POUSA: e a chegada que ela conta.
     const limpar = () => {
       voo.remove();
-      destino.setAttribute('data-recebeu', '');
-      setTimeout(() => destino.removeAttribute('data-recebeu'), 600);
+      aoPousar();
     };
     voo.addEventListener('transitionend', limpar, { once: true });
     // Rede: se a transicao nao disparar (aba em segundo plano, por exemplo),
     // o clone nao pode ficar preso na tela pra sempre.
     setTimeout(() => { if (voo.isConnected) limpar(); }, 900);
+
+    return true;
   }
 
   /* ── Foto inteira ───────────────────────────────────────── */
@@ -397,7 +427,6 @@ const Peca = (function () {
 
   renderGrade();
   respeitarMovimento();
-  vigiarHero();
   observar();
 
   /* O que o provador.js precisa da vitrine. Antes tudo morava dentro da mesma

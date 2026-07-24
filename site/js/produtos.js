@@ -194,16 +194,4 @@ const PRODUTOS = [
 
      Servem tambem pra loja cadastrar a colecao inteira antes do ensaio ficar
      pronto, em vez de esperar tudo pra publicar qualquer coisa. */
-  {
-    nome: 'Biquíni Cortininha', // PLACEHOLDER — exemplo
-    preco: 'R$ 149,90', // PLACEHOLDER
-    categoria: 'praia',
-    tamanhos: ['P', 'M', 'G'],
-  },
-  {
-    nome: 'Saída de Praia Renda', // PLACEHOLDER — exemplo
-    preco: 'R$ 189,90', // PLACEHOLDER
-    categoria: 'praia',
-    tamanhos: ['Único'],
-  },
 ];

@@ -172,10 +172,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    no topo faria quem escolhe uma peca no fim da grade rolar a pagina inteira
    pra fechar o pedido — exatamente o problema que a prateleira resolvia.
 
-   Aqui e sticky, nao fixed: no desktop o header ocupa espaco no fluxo e o
-   hero comeca embaixo dele, que e como esta pagina sempre foi. No celular ele
-   vira fixed (ver o bloco de baixo), porque la o video precisa sangrar ate o
-   pixel zero. */
+   Sticky e nao fixed: ocupando espaco no fluxo, a faixa empurra o hero pra
+   baixo em vez de cobrir o topo dele. Fixed exigiria compensar a altura na
+   mao, e qualquer mudanca de padding aqui passaria a quebrar o hero. */
 .header {
   position: sticky;
   top: 0;
@@ -282,13 +281,113 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    qualquer codigo que olhe pro alvo precisa saber subir ate o botao. */
 .header__provador svg { pointer-events: none; }
 
-/* Pulso curto quando uma peca pousa. E o fim do voo: a foto chega e o botao
-   responde, entao a cliente sabe que aquilo ali e o destino. */
-.header__provador[data-recebeu] { animation: provador-recebe 0.5s var(--curva); }
+/* ── A confirmacao escrita ────────────────────────────────── */
+/* O anel diz que ALGO aconteceu; esta faixa diz O QUE aconteceu.
 
-@keyframes provador-recebe {
+   Foi o que faltou na primeira versao: movimento sem palavra deixa a cliente
+   adivinhando se a peca entrou mesmo. Aumentar o anel ou somar confete daria
+   mais espetaculo e a mesma duvida — o que tira a ambiguidade e a frase.
+
+   O texto diz "no provador", e nao "comprado": a venda so fecha na conversa
+   do WhatsApp. Comemorar como pedido feito faria a cliente achar que ja pediu
+   e nao mandar a mensagem, que e o unico gesto que a loja precisa. */
+.aviso {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem var(--passo);
+  background: var(--branco);
+  border-bottom: 1px solid var(--ouro);
+
+  /* Desliza de baixo da faixa. O deslocamento e pequeno de proposito: com
+     -100% ela nasceria em cima do header e, como filha dele, apareceria POR
+     CIMA da marca no meio da transicao. */
+  transform: translateY(-0.6rem);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.4s var(--curva), opacity 0.3s var(--curva);
+}
+
+.aviso[data-visivel] {
+  transform: none;
+  opacity: 1;
+}
+
+.aviso__foto {
+  width: 2.25rem;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: var(--fio);
+  flex-shrink: 0;
+}
+
+.aviso__texto {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+/* O nome da peca em peso medio, o resto em cinza: a cliente le "qual peca"
+   num relance e o "no provador" fica de contexto. */
+.aviso__texto strong {
+  font-weight: 500;
+}
+
+.aviso__onde {
+  color: var(--cinza);
+}
+
+/* ── O anel, quando a peca pousa ──────────────────────────── */
+/* E o fim do voo: a foto chega e o icone responde.
+
+   Anel e nao confete. O fio dourado de 1px ja e a lingua da pagina inteira —
+   o divisor entre secoes, o sublinhado do Instagram, a borda do chip de
+   tamanho. Aqui ele so vira circulo e se move. Confete traria junto o DNA de
+   e-commerce gamificado, que briga com o editorial contido do resto.
+
+   ::after e nao um elemento no HTML: nao ha o que marcar, e pseudo nao entra
+   no fluxo, nao pega foco e nao aparece pro leitor de tela. */
+.header__provador::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Do tamanho do proprio botao, centrado nele. A escala fica ABAIXO de 1 no
+     fim (0,92) de proposito: o botao encosta na borda direita da tela, e um
+     anel que passasse da caixa dele criaria rolagem horizontal na pagina. */
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -1.375rem 0 0 -1.375rem;
+  border: 1px solid var(--ouro);
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.header__provador[data-recebeu]::after {
+  animation: anel-irradia 0.62s var(--curva);
+}
+
+@keyframes anel-irradia {
+  from { opacity: 0.85; transform: scale(0.3); }
+  to   { opacity: 0;    transform: scale(0.92); }
+}
+
+/* O numero salta junto. E ele que carrega a informacao — o anel chama o olho,
+   a contagem diz o que mudou. */
+.header__provador[data-recebeu] .header__provador__conta {
+  animation: conta-salta 0.5s var(--curva);
+}
+
+@keyframes conta-salta {
   0%   { transform: none; }
-  35%  { transform: scale(1.16); }
+  32%  { transform: scale(1.35); }
   100% { transform: none; }
 }
 
@@ -330,73 +429,23 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    So no celular: no desktop o video ja fica em coluna ao lado do texto, e um
    header por cima nao teria imagem embaixo pra flutuar. */
 
-@media (max-width: 47.999rem) {
-  /* fixed e nao sticky: sticky ocuparia espaco no fluxo e empurraria o video
-     pra baixo. Tirando o header do fluxo, a imagem comeca no pixel zero e a
-     marca passa a viver dentro da cena. */
-  .header {
-    position: fixed;
-    inset: 0 0 auto 0;
-    background: transparent;
-  }
+/* O header e faixa solida cor de papel em toda largura.
 
-  /* Enquanto o hero esta atras da faixa, a letra e branca sobre o scrim do
-     video. Depois que ele sai, o app.js poe data-fora-do-hero e tudo volta a
-     ser tinta sobre papel — branco sobre o creme do catalogo seria invisivel. */
-  .header:not([data-fora-do-hero]) .marca__nome,
-  .header:not([data-fora-do-hero]) .marca__sub,
-  .header:not([data-fora-do-hero]) .header__link,
-  .header:not([data-fora-do-hero]) .header__provador {
-    color: var(--branco);
-  }
+   Antes ele flutuava transparente sobre o video no celular, e a marca ficava
+   escondida enquanto o hero estava na tela — o logo grande na base do video ja
+   dizia o nome. So que isso esvaziava o topo: sobravam Instagram e sacola
+   empurrados pro canto direito, com metade da faixa vazia, e a tela lia como
+   inacabada.
 
-  .header:not([data-fora-do-hero]) .header__link:hover { color: var(--ouro-claro); }
-  .header:not([data-fora-do-hero]) .header__ponto { background: var(--ouro-claro); }
-  .header:not([data-fora-do-hero]) .header__provador__conta { background: var(--ouro-claro); }
+   Com faixa solida a agonia original morre por outro caminho. O que incomodava
+   era letra BRANCA boiando sobre a foto; tinta sobre papel da 16,1:1 e le como
+   header de site, nao como texto largado na imagem.
 
-  /* Sobre o video o fio do link clareia junto com o resto: --ouro sobre a
-     cena escura ficaria quase invisivel e a afordancia se perderia. */
-  .header:not([data-fora-do-hero]) .header__link--fora {
-    text-decoration-color: var(--ouro-claro);
-  }
-  .header:not([data-fora-do-hero]) .header__link--fora:hover {
-    text-decoration-color: var(--branco);
-  }
-
-  /* O wordmark do topo sai de cena enquanto o hero esta na tela.
-
-     Nao e economia de pixel: o logo da loja esta logo abaixo, grande, dizendo
-     a mesma coisa melhor. Repetir a marca em texto a 40px de distancia do
-     desenho dela era o que mais enchia o topo.
-
-     visibility e nao display: o elemento continua ocupando seu lugar no flex,
-     entao o Instagram e a sacola nao pulam de posicao quando ele volta. E o
-     link some do foco do teclado, que e o certo — foco invisivel e pior que
-     link ausente. */
-  .header:not([data-fora-do-hero]) .marca {
-    visibility: hidden;
-    opacity: 0;
-  }
-
-  .marca {
-    opacity: 1;
-    transition: opacity 0.3s var(--curva);
-  }
-
-  /* Contorno branco so dentro do header sobre o video. Solto, este seletor
-     valia pra pagina inteira e deixava o foco do teclado quase invisivel nos
-     cards, que ficam sobre o creme. */
-  .header:not([data-fora-do-hero]) :focus-visible { outline-color: var(--branco); }
-
-  .header[data-fora-do-hero] { background: var(--luz); }
-
-  /* O fio do header sai: sobre a foto ele vira risco solto, e o unico
-     divisor que carrega significado e o que separa hero de grade. */
-  .header .fio { display: none; }
-
-  /* O header flutua sobre o hero, entao a pagina comeca no video. */
-  main { padding-top: 0; }
-}
+   O preco e o video deixar de sangrar ate o pixel zero no celular. Aceito: com
+   uma faixa de verdade separando as duas coisas, a leitura de tarjas
+   empilhadas que o full-bleed evitava nao volta — o que a produzia era banda
+   creme, video e banda creme com pesos iguais, e aqui a faixa e fina e o video
+   e o bloco. */
 
 /* ── Sem JavaScript ───────────────────────────────────────── */
 
@@ -464,28 +513,24 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   object-position: center top;
 }
 
-/* O estudio e claro demais pra tipografia branca pousar em cima sem ajuda.
-   Dois scrims, um em cada ponta: o de cima carrega o header que agora flutua
-   sobre a imagem, o de baixo carrega o titulo. O miolo do video — onde a
-   roupa esta — fica limpo, que e o que importa numa vitrine. */
+/* UM scrim so, na base, e ele existe pra sustentar o logo.
+
+   Havia um segundo no topo (0,58) que carregava o header quando ele flutuava
+   sobre a imagem. Com a faixa solida o header nao esta mais ali, entao aquele
+   gradiente passou a escurecer o alto do quadro sem servir a nada — e o alto
+   do quadro e onde esta o rosto da modelo.
+
+   O de baixo foi medido: com o gradiente antigo (0,66 / 0,30 / 60%) o logo
+   dava 3,84:1 de media, porque o topo do desenho — a silhueta em traco fino —
+   caia justamente onde o scrim ja tinha se dissolvido. Com este, 5,66:1.
+
+   O custo e escurecer o meio do quadro de 0,05 pra 0,13, e ai fica: mais que
+   isso comeca a apagar a roupa, que e o produto. */
 .hero__media::after {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(
-      to bottom,
-      rgb(10 9 8 / 0.58) 0%,
-      rgb(10 9 8 / 0.22) 12%,
-      rgb(10 9 8 / 0) 26%
-    ),
-    /* O scrim de baixo engordou pra sustentar o logo, que agora mora aqui.
-       Medido: com o gradiente antigo (0,66 / 0,30 / 60%) o logo dava 3,84:1
-       de media porque o topo do desenho — a silhueta em traco fino — caia
-       justamente onde o scrim ja tinha se dissolvido. Com este, 5,66:1.
-
-       O custo e escurecer o meio do quadro de 0,05 pra 0,13, e ai fica: mais
-       que isso comeca a apagar a roupa, que e o produto. */
     linear-gradient(
       to top,
       rgb(10 9 8 / 0.72) 0%,
@@ -570,18 +615,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   }
 
   .hero__media { grid-column: 2; }
-
-  /* O scrim de cima sai (nao ha header flutuando aqui), o de baixo FICA: e
-     ele que sustenta o logo, que no desktop continua sobre o video. Sem isto
-     o logo cairia pra 2,33:1 do quadro cru. */
-  .hero__media::after {
-    background: linear-gradient(
-      to top,
-      rgb(10 9 8 / 0.72) 0%,
-      rgb(10 9 8 / 0.52) 34%,
-      rgb(10 9 8 / 0) 62%
-    );
-  }
 
   /* O h1 vai pra mesma celula do video e o logo centra nele. Fora dessa
      celula o logo cairia no creme, onde mede 1,42:1 e some. */

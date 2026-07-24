@@ -119,6 +119,22 @@
     </button>
   </nav>
   <div class="fio" role="presentation"><span class="fio__traco"></span></div>
+
+  <!-- A confirmacao escrita. O anel diz que algo aconteceu; esta faixa diz o
+       QUE aconteceu.
+
+       Vive dentro do <header> e e absoluta: assim pousa colada embaixo da
+       faixa sem ninguem medir altura em JS, e acompanha o header quando ele
+       gruda no topo. Filho absoluto nao participa do flex, entao nao empurra
+       a marca nem a sacola.
+
+       Fica sempre no DOM, so escondida por opacidade — regiao aria-live que
+       nasce com [hidden] nao esta na arvore de acessibilidade e nao anuncia
+       nada quando reaparece. -->
+  <p class="aviso" id="aviso" role="status" aria-live="polite">
+    <img class="aviso__foto" id="aviso-foto" width="960" height="1200" alt="" decoding="async">
+    <span class="aviso__texto" id="aviso-texto"></span>
+  </p>
 </header>
 
 <main>
