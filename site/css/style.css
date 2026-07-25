@@ -564,9 +564,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* CENTRADO, e nao encostado na esquerda.
 
    Alinhado a esquerda e sozinho, o logo lia como marca d'agua: um desenho
-   pousado num canto por acaso. Com peso em cima (o fio) e embaixo (o bordao),
-   e o eixo no meio, os tres viram uma coisa so — e ai o vazio em volta e
-   moldura, nao sobra. */
+   pousado num canto por acaso. Centrado, com o bordao ancorando embaixo, o
+   par vira composicao e o vazio em volta e moldura, nao sobra. */
 .hero__marca {
   grid-row: 1;
   grid-column: 1;
@@ -582,33 +581,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   color: var(--branco);
 }
 
-/* O fio que abre o lockup.
-
-   Mesma qualidade do divisor de secao — traco continuo de 1px em dourado — em
-   escala de assinatura. Se desenha do centro pras pontas, e nao da esquerda:
-   num lockup centrado, comecar por um lado puxaria o olho pra fora do eixo. */
-.hero__fio {
-  width: 3.25rem;
-  height: 1px;
-  background: var(--ouro-claro);
-  transform-origin: center;
-  animation: hero-fio-desenha 1s var(--curva) 0.1s both;
-}
-
-/* Comeca em 0,2 e nao em 0, pelo mesmo motivo do logo logo abaixo: animacao
-   com fill segura o estado inicial ate o relogio andar, e um fio que nasce em
-   scaleX(0) fica invisivel pra sempre se ela nao rodar — justo a peca que
-   ancora o topo do lockup. Crescer 5x ainda le como traco se desenhando, e o
-   pior caso e um risco curto no lugar certo. */
-@keyframes hero-fio-desenha {
-  from { transform: scaleX(0.2); }
-  to   { transform: scaleX(1); }
-}
-
-/* 56vw teto 13rem. Menor que os 62vw de quando ele estava sozinho: com fio e
-   bordao em volta, o conjunto inteiro precisa caber na faixa onde o scrim
-   ainda segura — subir mais joga o topo do desenho na zona clara do quadro,
-   que e onde o dourado lava. */
+/* 56vw teto 13rem. Menor que os 62vw de quando ele estava sozinho: com o
+   bordao embaixo, o conjunto inteiro precisa caber na faixa onde o scrim ainda
+   segura — subir mais joga o topo do desenho na zona clara do quadro, que e
+   onde o dourado lava. */
 .hero__logo {
   width: min(56vw, 13rem);
   height: auto;
@@ -624,10 +600,49 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* "Delles" e "Elas" em dourado: o trocadilho E a marca, e em caps tracked,
    sem cor, ele desaparece no meio da linha. Sobre a base escura do video o
    ouro claro tem contraste de sobra — e a mesma cor que o bloco preto do
-   rodape ja usa. */
+   rodape ja usa.
+
+   relative pra ancorar o sublinhado; inline-block pra que o ::after respeite
+   a largura da palavra e nao se quebre junto com a linha. */
 .hero__bordao b {
+  position: relative;
+  display: inline-block;
   font-weight: inherit;
   color: var(--ouro-claro);
+}
+
+/* O sublinhado que se desenha, uma palavra depois da outra.
+
+   E o fio dourado da pagina reaparecendo em escala de palavra: 1px continuo,
+   crescendo da esquerda pra direita — a "linha passando". Cada palavra tem o
+   seu, com larguras diferentes, porque e o sublinhado do trocadilho, nao um
+   divisor.
+
+   right recuado em uma unidade de tracking apaga o espaco que o letter-spacing
+   deixa depois da ultima letra: sem isso o traco passaria da palavra. */
+.hero__bordao b::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: var(--letra-ar);
+  bottom: -0.15em;
+  height: 1px;
+  background: var(--ouro-claro);
+  transform: scaleX(0);
+  transform-origin: left center;
+  /* Depois do bordao inteiro ja ter subido (entra a 0,45s por 0,9s). Delles
+     primeiro, Elas logo atras: a leitura vai da esquerda pra direita e os dois
+     tracos acompanham. */
+  animation: sublinha 0.55s var(--curva) 1.15s both;
+}
+
+.hero__bordao b:last-of-type::after {
+  animation-delay: 1.45s;
+}
+
+@keyframes sublinha {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 
 @keyframes marca-entra {
@@ -1530,6 +1545,8 @@ body:has(.modal[open]), body:has(.provador[open]), body:has(.inteira[open]) { ov
      estado inicial por ate meio segundo — para quem pediu menos movimento
      isso le como falha de carregamento, nao como animacao curta. */
   .hero__logo { animation: none; transform: none; }
-  .hero__fio { animation: none; transform: scaleX(1); }
   .hero__bordao { animation: none; opacity: 1; transform: none; }
+  /* Os sublinhados nascem desenhados: sem a animacao, scaleX(0) os deixaria
+     invisiveis pra sempre. */
+  .hero__bordao b::after { animation: none; transform: scaleX(1); }
 }
