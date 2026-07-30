@@ -672,33 +672,100 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   to   { transform: none; }
 }
 
+/* A coluna editorial do hero so existe no desktop. No celular o hero e video
+   + logo sobrepostos e nao ha largura pra ela. */
+.hero__editorial { display: none; }
+
 @media (min-width: 48rem) {
-  /* Video CENTRADO, com papel dos dois lados.
+  /* Hero editorial: video vertical a ESQUERDA, texto a direita, o par centrado
+     na tela.
 
-     Antes ele ficava na esquerda e a coluna da direita levava o texto do
-     hero. Sem esse texto a direita virava metade de tela vazia e o quadro
-     ficava encostado num canto, o que le como erro de layout e nao como
-     respiro. Centrado, o vazio dos dois lados vira moldura.
+     A tentativa anterior centrava so o video e deixava papel dos dois lados —
+     honesto no celular, mas numa tela larga o quadro estreito flutuando no
+     vazio le como print mal enquadrado. Trazer de volta a coluna da direita,
+     agora com texto REAL (nome da colecao + linha da propria descricao do
+     site) e nao o placeholder que existia antes, transforma o vazio em
+     composicao: video de um lado, palavra do outro, como campanha de moda.
 
-     E continua sendo coluna, e nao video sangrando: 9:16 esticado numa tela
-     larga viraria uma fatia — a caixa tem 72dvh de altura e a largura toda
-     daria 2,2:1, cortando quase tudo. */
+     O video continua coluna e nao sangra: 22rem por ~40rem de altura da 0,55,
+     que e praticamente o 9:16 do arquivo — ele aparece quase sem corte. */
   .hero {
-    grid-template-columns: 1fr minmax(0, 24rem) 1fr;
-    gap: 0;
+    grid-template-columns: minmax(0, 22rem) minmax(0, 26rem);
+    justify-content: center;
+    align-items: stretch;
+    gap: clamp(2.5rem, 6vw, 6rem);
+    /* teto em rem pra nao esticar num monitor alto e jogar a grade pra fora da
+       primeira tela; 40rem casa com o 9:16 do video na largura de 22rem. */
+    height: min(72dvh, 40rem);
   }
 
-  .hero__media { grid-column: 2; }
-
-  /* O h1 vai pra mesma celula do video e o logo centra nele. Fora dessa
-     celula o logo cairia no creme, onde mede 1,42:1 e some. */
+  /* Video e logo ficam JUNTOS na coluna 1: o logo dourado so tem contraste
+     sobre a base escura do video (no creme mede 1,42:1 e some). */
+  .hero__media { grid-column: 1; }
   .hero__marca {
-    grid-column: 2;
+    grid-column: 1;
     align-items: center;
     padding: 0 1.5rem 2rem;
   }
-
   .hero__logo { width: min(72%, 13rem); }
+
+  /* ── Coluna editorial (direita) ── */
+  .hero__editorial {
+    grid-column: 2;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 1.1rem;
+  }
+  .hero__rotulo {
+    margin: 0;
+    font-size: 0.625rem;
+    color: var(--cinza);
+  }
+  /* voz-peso ja poe Jost 600 caps; aqui so cresce. E o eco do provador__titulo,
+     entao a colecao fala com a mesma voz de titulo do resto do site. */
+  .hero__colecao {
+    margin: 0;
+    font-size: clamp(2.4rem, 4.5vw, 3.6rem);
+    line-height: 0.98;
+    color: var(--tinta);
+  }
+  /* O fio dourado da pagina reaparecendo aqui — mesma cor do fio do topo e dos
+     tracos das pecas. Ouro como decoracao, nunca como letra. */
+  .hero__fio-ed {
+    display: block;
+    width: 3.5rem;
+    height: 2px;
+    background: var(--ouro);
+  }
+  .hero__lead {
+    margin: 0;
+    max-width: 22rem;
+    color: var(--cinza);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+  /* O mesmo momento dourado do .wpp: --tinta sobre --ouro (5,40:1). Copiado e
+     nao herdado porque o .wpp e <button>/<a> de acao de compra; este e link de
+     ancora pra grade. */
+  .hero__cta {
+    display: inline-block;
+    margin-top: 0.4rem;
+    padding: 0.85rem 1.9rem;
+    background: var(--ouro);
+    color: var(--tinta);
+    text-decoration: none;
+    font-family: 'Jost', system-ui, sans-serif;
+    font-weight: 300;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: var(--letra-ar);
+    text-indent: var(--letra-ar);
+    transition: background 0.2s var(--curva);
+  }
+  .hero__cta:hover { background: var(--ouro-hover); }
 }
 
 /* ── Grade ────────────────────────────────────────────────── */
@@ -797,7 +864,18 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 
 @media (min-width: 48rem) {
+  /* A secao ganha um teto de largura e centra. Sem isto, numa tela larga as 3
+     colunas esticavam a foto ate ~600px e a peca virava poster — foi o que
+     ficou "estranho". Com o teto, o catalogo acompanha o respiro centrado do
+     hero em vez de sangrar de ponta a ponta. */
+  .grade-secao { max-width: 90rem; margin-inline: auto; }
   .grade { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Tela larga: 4 colunas. Com o teto de 90rem cada foto fica perto de 330px —
+   tamanho de vitrine, nao de outdoor. */
+@media (min-width: 75rem) {
+  .grade { grid-template-columns: repeat(4, 1fr); }
 }
 
 .peca__botao {
