@@ -20,6 +20,8 @@ const Peca = (function () {
 
   let pecaAberta = null;
   let tamanhoEscolhido = null;
+  // A cor em cena no modal. null quando a peca so tem uma foto.
+  let corEscolhida = null;
 
   /* ── Helpers ────────────────────────────────────────────── */
 
@@ -38,12 +40,23 @@ const Peca = (function () {
      Prometer no srcset um arquivo que nao existe da 404, e o <picture> NAO cai
      pra proxima <source> — o <img> dispara error e o card vira "Em breve".
      Aparecia so em tela densa (celular com DPR 3 no modal, desktop Retina na
-     grade), que e justamente onde a cliente esta. */
+     grade), que e justamente onde a cliente esta.
+
+     COR TEM LARGURA PROPRIA, e por isso a busca comeca nela. Peca de varias
+     cores tem uma foto por cor, e as fontes chegam em tamanhos diferentes: a
+     camisola longa branca veio com 681px e a preta com 855px. Herdar a largura
+     do produto quebraria uma das duas — no infantil, o slug do menino (747px)
+     prometeria um 960 que nao existe e a foto sumiria. */
+  function largurasDe(slug) {
+    const p = Carrinho.produtoDe(slug);
+    if (!p) return GRID_LARGURAS;
+    const cor = p.cores?.find((c) => c.slug === slug);
+    return cor?.larguras || p.larguras || GRID_LARGURAS;
+  }
+
   function fontes(slug, sizes) {
-    const p = PRODUTOS.find((x) => x.slug === slug);
-    const larguras = p?.larguras || GRID_LARGURAS;
     const srcset = (fmt) =>
-      larguras.map((w) => `img/produtos/${slug}-${w}.${fmt} ${w}w`).join(', ');
+      largurasDe(slug).map((w) => `img/produtos/${slug}-${w}.${fmt} ${w}w`).join(', ');
     return (
       `<source type="image/avif" srcset="${srcset('avif')}" sizes="${sizes}">` +
       `<source type="image/webp" srcset="${srcset('webp')}" sizes="${sizes}">`
@@ -239,19 +252,27 @@ const Peca = (function () {
   // pedir de novo faria o botao dizer "Escolha o tamanho" pra uma peca que
   // esta no pedido ali do lado.
   function abrir(slug, tamanhoPrevio) {
-    const p = PRODUTOS.find((x) => x.slug === slug);
+    /* Aceita tanto o slug do produto quanto o de uma cor: quem chega pelo
+       provador traz o slug da COR que ela escolheu, e a peca tem que reabrir
+       naquela cor. */
+    const p = Carrinho.produtoDe(slug);
     if (!p || !dlg) return;
 
     pecaAberta = p;
+    corEscolhida = p.cores ? (p.cores.find((c) => c.slug === slug) || p.cores[0]) : null;
     tamanhoEscolhido = p.tamanhos.includes(tamanhoPrevio) ? tamanhoPrevio : null;
 
-    document.getElementById('modal-foto-wrap').innerHTML =
-      fontes(p.slug, MODAL_SIZES) +
-      `<img class="modal__foto" src="img/produtos/${esc(p.slug)}-800.webp"
-            width="1368" height="1710" decoding="async" alt="${esc(p.alt)}">`;
+    pintarFoto();
+    montarCores();
 
     document.getElementById('modal-nome').textContent = p.nome;
     document.getElementById('modal-preco').textContent = p.preco;
+
+    // A nota so aparece quando existe: caixa vazia empurraria o botao pra
+    // baixo sem dizer nada.
+    const nota = document.getElementById('modal-nota');
+    nota.textContent = p.nota || '';
+    nota.hidden = !p.nota;
 
     const opcoes = document.getElementById('modal-tamanhos');
     opcoes.innerHTML = p.tamanhos
@@ -276,6 +297,68 @@ const Peca = (function () {
     tamanhoEscolhido = t;
     opcoes.querySelectorAll('.tamanho').forEach((b) => {
       b.setAttribute('aria-pressed', String(b.dataset.tamanho === t));
+    });
+    atualizarBotaoAdd();
+  }
+
+  /* ── Cores ──────────────────────────────────────────────── */
+  /* A mesma peca em cores diferentes vive num card so. Cada cor tem sua foto,
+     e trocar de cor troca a foto do modal — nao abre outra peca.
+
+     O slug que vai pro carrinho e o da COR, nao o do produto. E isso que
+     mantem a identidade do item em slug+tamanho, sem terceiro campo. */
+
+  // Sempre o slug atual: a cor quando ha cores, o produto quando nao ha.
+  const slugAtual = () => (corEscolhida ? corEscolhida.slug : pecaAberta.slug);
+
+  function pintarFoto() {
+    const slug = slugAtual();
+    document.getElementById('modal-foto-wrap').innerHTML =
+      fontes(slug, MODAL_SIZES) +
+      `<img class="modal__foto" src="img/produtos/${esc(slug)}-800.webp"
+            width="1368" height="1710" decoding="async" alt="${esc(pecaAberta.alt)}">`;
+  }
+
+  function montarCores() {
+    const caixa = document.getElementById('modal-cores');
+    const grupo = document.getElementById('modal-cores-grupo');
+    if (!caixa || !grupo) return;
+
+    // Sem cores, o bloco inteiro sai — inclusive o rotulo.
+    grupo.hidden = !pecaAberta.cores;
+    if (!pecaAberta.cores) {
+      caixa.innerHTML = '';
+      return;
+    }
+
+    /* Miniatura da propria foto, e nao bolinha de cor chapada: "vinho" e
+       "preto" em bolinha viram dois circulos escuros quase iguais, e a cliente
+       nao sabe o que esta escolhendo. A foto mostra a peca na cor. */
+    caixa.innerHTML = pecaAberta.cores
+      .map(
+        (c) =>
+          `<button class="cor" type="button" data-cor="${esc(c.slug)}" ` +
+          `aria-pressed="${c.slug === corEscolhida.slug}">` +
+          `<img src="img/produtos/${esc(c.slug)}-400.webp" alt="" ` +
+          `width="960" height="1200" loading="lazy" decoding="async">` +
+          `<span class="cor__nome">${esc(c.nome)}</span>` +
+          `</button>`
+      )
+      .join('');
+
+    caixa.querySelectorAll('.cor').forEach((b) => {
+      b.addEventListener('click', () => escolherCor(b.dataset.cor, caixa));
+    });
+  }
+
+  function escolherCor(slug, caixa) {
+    const nova = pecaAberta.cores.find((c) => c.slug === slug);
+    if (!nova || nova.slug === corEscolhida.slug) return;
+
+    corEscolhida = nova;
+    pintarFoto();
+    caixa.querySelectorAll('.cor').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.cor === slug));
     });
     atualizarBotaoAdd();
   }
@@ -311,13 +394,15 @@ const Peca = (function () {
        segundo no futuro. */
     const p = pecaAberta;
     const tamanho = tamanhoEscolhido;
+    // O slug da COR escolhida, nao o do produto: e ele que identifica o item.
+    const slug = slugAtual();
 
     /* Guarda a posicao da foto ANTES de fechar o modal: depois de fechado o
        elemento sai da tela e o retangulo zera. */
     const foto = document.querySelector('.modal__foto');
     const origem = foto ? foto.getBoundingClientRect() : null;
 
-    Carrinho.adicionar(p.slug, tamanho);
+    Carrinho.adicionar(slug, tamanho);
 
     // Fecha e devolve a cliente pro catalogo. O voo da foto ate o header e o
     // que conta o que aconteceu — sem ele, o modal some e a peca parece ter
@@ -328,7 +413,7 @@ const Peca = (function () {
        confirmacao nao pode sumir junto. Ela e barata e roda de qualquer jeito;
        sob reduced-motion o proprio CSS neutraliza o movimento e sobra o texto,
        que e o que importa. */
-    const confirmar = () => confirmarEntrada(p, tamanho);
+    const confirmar = () => confirmarEntrada(p, tamanho, slug);
     if (!voarParaOProvador(foto, origem, confirmar)) confirmar();
   }
 
@@ -340,7 +425,7 @@ const Peca = (function () {
   let apagarPulso;
   let apagarAviso;
 
-  function confirmarEntrada(p, tamanho) {
+  function confirmarEntrada(p, tamanho, slug) {
     const destino = document.getElementById('abrir-provador');
     if (destino) {
       /* Tirar e repor com um reflow no meio. Sem isso, levar duas pecas
@@ -357,7 +442,9 @@ const Peca = (function () {
     const aviso = document.getElementById('aviso');
     if (!aviso) return;
 
-    document.getElementById('aviso-foto').src = `img/produtos/${p.slug}-400.webp`;
+    // A foto da COR escolhida: confirmar com a cor errada seria pior do que
+    // nao confirmar.
+    document.getElementById('aviso-foto').src = `img/produtos/${slug}-400.webp`;
 
     /* textContent e nao innerHTML: o nome vem do produtos.js, que e editado a
        mao, e aqui ele entra em elemento separado justamente pra nao haver
@@ -366,9 +453,10 @@ const Peca = (function () {
     texto.textContent = '';
     const nome = document.createElement('strong');
     nome.textContent = p.nome;
+    const cor = Carrinho.corDe(slug);
     const onde = document.createElement('span');
     onde.className = 'aviso__onde';
-    onde.textContent = ` · Tam ${tamanho} no provador`;
+    onde.textContent = `${cor ? ` · ${cor}` : ''} · Tam ${tamanho} no provador`;
     texto.append(nome, onde);
 
     aviso.setAttribute('data-visivel', '');
@@ -431,7 +519,8 @@ const Peca = (function () {
 
   function verInteira() {
     if (!pecaAberta || !inteiraDlg) return;
-    const slug = esc(pecaAberta.slug);
+    // A cor que esta na tela, nao a primeira do produto.
+    const slug = esc(slugAtual());
 
     // src so agora: o arquivo "-inteira" nao pesa no carregamento da pagina.
     document.getElementById('inteira-wrap').innerHTML =

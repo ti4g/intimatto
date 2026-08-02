@@ -102,6 +102,59 @@ const alvos = [
   // A janela mantem o rosto e os dois primeiros circulos — as outras cores
   // aparecem inteiras na foto sem corte.
   { fonte: 'IMG-20260720-WA0113.jpg',            slug: 'conjunto-renda',     recorte: { left: 0, top: 60, width: 750, height: 937 } },
+
+  /* ── Lote de 2026-08-02: moda intima ──────────────────────
+
+     Oito pecas, e varias com MAIS DE UMA COR — cada cor e um arquivo
+     proprio, e o produtos.js junta tudo num card so. Por isso os slugs aqui
+     terminam com a cor: e o que o site usa pra trocar a foto quando a cliente
+     toca no circulo da cor.
+
+     Fotos de catalogo de fornecedor, entao vem em proporcao variada (0,50 a
+     0,75). O corte 4:5 e escolhido peca a peca pra manter rosto E peca — o
+     que sobra da barra vive na foto inteira, um toque adiante. */
+
+  // Pijama americano calca — R$ 189,90
+  { fonte: 'novas-2026-08-02/pijama-calca-vinho.webp',   slug: 'pijama-calca-vinho',   recorte: { left: 0, top: 80,  width: 960, height: 1200 } },
+  { fonte: 'novas-2026-08-02/pijama-calca-preto.webp',   slug: 'pijama-calca-preto',   recorte: { left: 0, top: 80,  width: 960, height: 1200 } },
+  /* A fonte tem um terceiro arquivo, um close do vivo rosa e do bolso
+     (pijama-calca-preto-detalhe.webp). Fica guardado e NAO e processado: o
+     seletor do modal e de COR, e uma miniatura chamada "detalhe" no meio de
+     "vinho" e "preto" quebra a leitura. Volta no dia que houver galeria. */
+
+  // Pijama americano alca — R$ 139,90
+  { fonte: 'novas-2026-08-02/pijama-alca-vinho.webp',    slug: 'pijama-alca-vinho',    recorte: { left: 0, top: 80,  width: 960, height: 1200 } },
+
+  // Pijama americano short — R$ 149,90
+  { fonte: 'novas-2026-08-02/pijama-short-vinho.webp',   slug: 'pijama-short-vinho',   recorte: { left: 0, top: 60,  width: 960, height: 1200 } },
+
+  // Robe curto tule e renda — R$ 129,90 — tres cores
+  { fonte: 'novas-2026-08-02/robe-tule-branco.webp',     slug: 'robe-tule-branco',     recorte: { left: 0, top: 40,  width: 960, height: 1200 } },
+  { fonte: 'novas-2026-08-02/robe-tule-vermelho.webp',   slug: 'robe-tule-vermelho',   recorte: { left: 0, top: 110, width: 853, height: 1066 } },
+  { fonte: 'novas-2026-08-02/robe-tule-preto.webp',      slug: 'robe-tule-preto',      recorte: { left: 0, top: 40,  width: 960, height: 1200 } },
+
+  // Conjunto cinta liga — R$ 169,90 — duas fotos, tres cores na loja
+  { fonte: 'novas-2026-08-02/cinta-liga-preto.webp',     slug: 'cinta-liga-preto',     recorte: { left: 0, top: 120, width: 720, height: 900 } },
+  { fonte: 'novas-2026-08-02/cinta-liga-vermelho.webp',  slug: 'cinta-liga-vermelho',  recorte: { left: 0, top: 120, width: 720, height: 900 } },
+
+  // Camisola longa — R$ 239,90 — duas cores. As fontes sao as mais altas do
+  // lote (0,50 e 0,63): chegar a 4:5 joga fora quase 40% da altura, entao o
+  // corte fica no busto e a barra da camisola vive na foto inteira.
+  // top=0: a modelo tem o rosto no topo do quadro, e qualquer folga aqui o
+  // decapita. Medido — com top=150 o corte comecava no queixo.
+  { fonte: 'novas-2026-08-02/camisola-longa-branca.webp', slug: 'camisola-longa-branca', recorte: { left: 0, top: 0, width: 681, height: 851 } },
+  { fonte: 'novas-2026-08-02/camisola-longa-preta.webp',  slug: 'camisola-longa-preta',  recorte: { left: 0, top: 120, width: 855, height: 1069 } },
+
+  /* Conjunto top tomara que caia — R$ 117,90.
+
+     Selfie de espelho, o rosto ja vem cortado na altura da boca na fonte.
+     top=0 preserva o que sobrou dele: sem isso o card vira tronco sem cabeca,
+     que le como foto anatomica em vez de foto de peca. */
+  { fonte: 'novas-2026-08-02/top-tomara-nude.webp',      slug: 'top-tomara-nude',      recorte: { left: 0, top: 0, width: 900, height: 1125 } },
+
+  // Pijama infantil — R$ 129,90 — 2 a 12 anos
+  { fonte: 'novas-2026-08-02/infantil-menina.webp',      slug: 'infantil-menina',      recorte: { left: 0, top: 40,  width: 864, height: 1080 } },
+  { fonte: 'novas-2026-08-02/infantil-menino.webp',      slug: 'infantil-menino',      recorte: { left: 0, top: 50,  width: 747, height: 934 } },
 ];
 
 // Fonte de 720 ou 750 de largura: 960 seria ampliacao de 1,3x, que engorda o
@@ -109,6 +162,9 @@ const alvos = [
 const SO_ATE_800 = new Set([
   'calca-cinza', 'vestido-preto-colado', 'short-preto', 'vestido-marrom',
   'blusa-verde', 'conjunto-renda',
+  // Lote de 2026-08-02: fontes de 681 a 747 de largura.
+  'cinta-liga-preto', 'cinta-liga-vermelho',
+  'camisola-longa-branca', 'infantil-menino',
 ]);
 
 /* Fonte pequena nao ganha nada sendo ampliada: 960 a partir de 450 e 2,1x de

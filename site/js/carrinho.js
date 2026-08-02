@@ -49,7 +49,27 @@ const Carrinho = (function () {
     return 'R$ ' + n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
 
-  const produtoDe = (slug) => PRODUTOS.find((p) => p.slug === slug);
+  /* O slug de uma COR tambem encontra o produto.
+
+     Peca com varias cores tem um arquivo por cor, e o carrinho guarda o slug
+     da cor escolhida — nunca o do produto. Assim a identidade do item continua
+     sendo o par slug+tamanho, sem terceiro campo e sem mexer em nada do que ja
+     funcionava: a cor E o slug.
+
+     Efeito colateral util: se a loja tirar uma cor de circulacao, o item some
+     do carrinho sozinho na proxima visita, pela mesma limpeza que ja descarta
+     peca vendida. */
+  const produtoDe = (slug) =>
+    PRODUTOS.find(
+      (p) => p.slug === slug || p.cores?.some((c) => c.slug === slug)
+    );
+
+  // O nome da cor, pra mensagem do WhatsApp e pra linha do provador. null
+  // quando a peca nao tem cores — a maioria.
+  const corDe = (slug) => {
+    const p = produtoDe(slug);
+    return p?.cores?.find((c) => c.slug === slug)?.nome || null;
+  };
 
   /* ── Persistencia ────────────────────────────────────────── */
 
@@ -186,5 +206,7 @@ const Carrinho = (function () {
     },
 
     emReais,
+    corDe,
+    produtoDe,
   };
 })();

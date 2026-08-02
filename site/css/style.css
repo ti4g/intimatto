@@ -1525,6 +1525,74 @@ body:has(.modal[open]), body:has(.provador[open]), body:has(.inteira[open]) { ov
   font-weight: 600;
 }
 
+/* ── Cores ────────────────────────────────────────────────── */
+/* A mesma peca em cores diferentes, num card so.
+
+   Miniatura da foto, e nao bolinha de cor chapada. "Vinho" e "preto" em
+   bolinha viram dois circulos escuros quase iguais no celular, e a cliente
+   escolhe no escuro. Com a foto ela ve a peca NAQUELA cor — que e a pergunta
+   real: "como fica?", nao "qual matiz?".
+
+   Vale tambem pro caso que nao e cor nenhuma: o pijama infantil usa este
+   mesmo controle pra alternar entre a foto da menina e a do menino. */
+
+.cores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.cor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0;
+  cursor: pointer;
+  color: var(--cinza);
+  transition: color 0.2s var(--curva);
+}
+
+.cor img {
+  width: 3rem;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: var(--fio);
+  border: 1px solid transparent;
+  transition: border-color 0.2s var(--curva);
+}
+
+.cor:hover { color: var(--tinta); }
+.cor:hover img { border-color: var(--fio); }
+
+/* Ouro como borda — decoracao, nao letra. Mesma regra do chip de tamanho. */
+.cor[aria-pressed='true'] img {
+  border-color: var(--ouro);
+  box-shadow: 0 0 0 1px var(--ouro);
+}
+
+.cor[aria-pressed='true'] { color: var(--tinta); }
+
+.cor__nome {
+  font-family: 'Jost', system-ui, sans-serif;
+  font-size: 0.5625rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* A nota da loja: "consulte as cores disponiveis". Fica em cinza e pequena
+   porque e ressalva, nao chamada. */
+.modal__nota {
+  margin: 0;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--cinza);
+}
+
+.modal__nota[hidden] { display: none; }
+
 /* O botao e O momento dourado da pagina: --tinta sobre --ouro da 5,40:1.
 
    O hover CLAREIA, o que parece errado e nao e. O texto em cima e escuro,

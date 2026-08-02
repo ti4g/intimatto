@@ -298,11 +298,23 @@
     <div class="modal__info">
       <h2 class="modal__nome" id="modal-nome"></h2>
       <p class="modal__preco" id="modal-preco"></p>
+      <!-- A mesma peca em cores diferentes. Nasce hidden: o app.js so mostra
+           quando o produto tem o campo `cores`. -->
+      <div class="tamanhos" id="modal-cores-grupo" hidden>
+        <span class="tamanhos__label voz-ar" id="cores-label">Cor</span>
+        <div class="cores" id="modal-cores"
+             role="group" aria-labelledby="cores-label"></div>
+      </div>
+
       <div class="tamanhos">
         <span class="tamanhos__label voz-ar" id="tamanhos-label">Tamanho</span>
         <div class="tamanhos__opcoes" id="modal-tamanhos"
              role="group" aria-labelledby="tamanhos-label"></div>
       </div>
+
+      <!-- O que a loja mandou como "verificar disponibilidade de cores": dizer
+           que existem outras e honesto, inventar quais nao e. -->
+      <p class="modal__nota" id="modal-nota" hidden></p>
       <button class="wpp" id="modal-add" type="button">Levar ao provador</button>
     </div>
   </div>

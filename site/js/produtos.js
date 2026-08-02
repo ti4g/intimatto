@@ -24,9 +24,25 @@ const WHATSAPP = '5563991266674';
               se o srcset prometer um arquivo que nao existe, o navegador em
               tela densa pede o 960, leva 404, e a foto some. Sem o campo, o
               padrao e [400, 800, 960]
+    cores     OPCIONAL. A MESMA peca em cores diferentes, num card so — cada
+              cor tem sua propria foto e seu proprio slug. O 'slug' do produto
+              e sempre o da PRIMEIRA cor: e ele que aparece no card da grade.
+              No modal a cliente toca na miniatura e a foto troca; a cor
+              escolhida vai junto na mensagem do WhatsApp.
+              Cada cor aceita 'larguras' proprio, porque as fotos chegam da
+              loja em tamanhos diferentes e a largura do produto nao serve
+              pra todas
+    nota      OPCIONAL. Uma linha curta no modal. Serve pro que a loja mandou
+              como "verificar disponibilidade de cores" — dizer que existem
+              outras cores e honesto; inventar quais nao e
 
   A ordem e a ordem da grade: cor alternada pra nenhuma fileira ficar monotona
   (2 col no celular, 3 no desktop).
+
+  SOBRE TAMANHO: so as pecas do lote de 2026-08-02 tem grade confirmada pela
+  loja. Nas outras o campo e chute meu marcado PLACEHOLDER — trocar assim que
+  a loja passar a grade real, porque tamanho errado faz a cliente pedir o que
+  nao existe e a conversa comeca com uma negativa.
 */
 
 /*
@@ -42,11 +58,14 @@ const WHATSAPP = '5563991266674';
   sujar a tela — foi o que aconteceu com praia.
 */
 const CATEGORIAS = [
-  { id: 'cima',   nome: 'Parte de cima' },
-  { id: 'baixo',  nome: 'Parte de baixo' },
-  { id: 'unica',  nome: 'Peça única' },
-  { id: 'intima', nome: 'Moda íntima' },
-  { id: 'praia',  nome: 'Praia' },  // sem peca ainda: nao aparece
+  { id: 'cima',     nome: 'Parte de cima' },
+  { id: 'baixo',    nome: 'Parte de baixo' },
+  { id: 'unica',    nome: 'Peça única' },
+  { id: 'intima',   nome: 'Moda íntima' },
+  // Fora do eixo "parte do corpo", como moda intima: e outro publico, nao
+  // outro pedaco da mesma cliente.
+  { id: 'infantil', nome: 'Infantil' },
+  { id: 'praia',    nome: 'Praia' },  // sem peca ainda: nao aparece
 ];
 
 const PRODUTOS = [
@@ -55,7 +74,7 @@ const PRODUTOS = [
     nome: 'Vestido Vinho Gola Alta',
     preco: 'R$ 289,90', // PLACEHOLDER
     categoria: 'unica',
-    tamanhos: ['P', 'M', 'G'],
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER — a loja nao passou a grade
     alt: 'Modelo veste vestido vinho midi de gola alta com recorte no busto',
   },
   {
@@ -63,7 +82,7 @@ const PRODUTOS = [
     nome: 'Camisola Renda Rosé',
     preco: 'R$ 109,90', // A CONFERIR: a loja mandou "Camisola: 109,90" sem foto junto
     categoria: 'intima',
-    tamanhos: ['P', 'M', 'G'],
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER — a loja nao passou a grade
     alt: 'Modelo veste camisola rosé de renda com robe combinando',
   },
   {
@@ -107,7 +126,7 @@ const PRODUTOS = [
     nome: 'Calça Wide Leg Jeans',
     preco: 'R$ 229,90', // PLACEHOLDER
     categoria: 'baixo',
-    tamanhos: ['36', '38', '40', '42'],
+    tamanhos: ['36', '38', '40', '42'], // PLACEHOLDER — a loja nao passou a grade
     alt: 'Modelo veste body preto com calça jeans wide leg azul claro',
   },
   {
@@ -192,7 +211,7 @@ const PRODUTOS = [
     nome: 'Conjunto Pantalona Marrom',
     preco: 'R$ 319,90', // PLACEHOLDER
     categoria: 'unica',
-    tamanhos: ['P', 'M', 'G'],
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER — a loja nao passou a grade
     alt: 'Modelo veste conjunto marrom de top tomara que caia e calça pantalona',
   },
   {
@@ -200,8 +219,113 @@ const PRODUTOS = [
     nome: 'Polo Canelada Preta',
     preco: 'R$ 129,90', // PLACEHOLDER
     categoria: 'cima',
-    tamanhos: ['P', 'M', 'G'],
+    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER — a loja nao passou a grade
     alt: 'Modelo veste polo preta canelada com calça jeans escura',
+  },
+
+  /* ── Lote de 2026-08-02 ─────────────────────────────────────
+
+     Preco e grade de tamanho vieram da loja, conferidos um a um. Sao as
+     UNICAS pecas do catalogo com tamanho confirmado. */
+
+  {
+    slug: 'pijama-calca-vinho',
+    nome: 'Pijama Americano Calça',
+    preco: 'R$ 189,90',
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G', 'GG'],
+    alt: 'Modelo veste pijama americano de camisa e calça em malha fria vinho com vivo branco',
+    cores: [
+      { nome: 'Vinho', slug: 'pijama-calca-vinho' },
+      { nome: 'Preto', slug: 'pijama-calca-preto' },
+    ],
+    nota: 'Malha fria. Consulte outras cores disponíveis.',
+  },
+  {
+    slug: 'camisola-longa-branca',
+    nome: 'Camisola Longa de Renda',
+    preco: 'R$ 239,90',
+    categoria: 'intima',
+    tamanhos: ['M', 'G'],
+    alt: 'Modelo veste camisola longa branca com busto em renda e alças finas',
+    cores: [
+      // Largura por cor: a fonte da branca tem 681px e a da preta 855px. Uma
+      // largura so pro produto quebraria uma das duas.
+      { nome: 'Branca', slug: 'camisola-longa-branca', larguras: [400, 800] },
+      { nome: 'Preta', slug: 'camisola-longa-preta' },
+    ],
+  },
+  {
+    slug: 'pijama-short-vinho',
+    nome: 'Pijama Americano Short',
+    preco: 'R$ 149,90',
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G', 'GG'],
+    alt: 'Modelo veste pijama americano de camisa e short em malha fria vinho com vivo branco',
+    nota: 'Malha fria. Consulte as cores disponíveis.',
+  },
+  {
+    slug: 'robe-tule-branco',
+    nome: 'Robe Curto Tule e Renda',
+    preco: 'R$ 129,90',
+    categoria: 'intima',
+    tamanhos: ['Único'],
+    alt: 'Modelo veste robe curto branco de tule com renda e mangas flare',
+    cores: [
+      { nome: 'Branco', slug: 'robe-tule-branco' },
+      { nome: 'Vermelho', slug: 'robe-tule-vermelho' },
+      { nome: 'Preto', slug: 'robe-tule-preto' },
+    ],
+  },
+  {
+    slug: 'pijama-alca-vinho',
+    nome: 'Pijama Americano Alça',
+    preco: 'R$ 139,90',
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G', 'GG'],
+    alt: 'Modelo veste pijama americano de alça e short em malha fria vinho com vivo branco',
+    nota: 'Malha fria. Consulte cores e tamanhos disponíveis.',
+  },
+  {
+    slug: 'cinta-liga-preto',
+    nome: 'Conjunto Cinta Liga',
+    preco: 'R$ 169,90',
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G', 'GG'],
+    alt: 'Modelo veste conjunto de lingerie preto em renda com cinta liga',
+    cores: [
+      { nome: 'Preto', slug: 'cinta-liga-preto' },
+      { nome: 'Vermelho', slug: 'cinta-liga-vermelho' },
+    ],
+    // A loja mandou "preto, branco e vermelho", mas so veio foto de dois. A
+    // nota conta a verdade sem inventar uma miniatura que nao existe.
+    nota: 'Também disponível em branco.',
+    larguras: [400, 800], // fonte 720px de largura
+  },
+  {
+    slug: 'top-tomara-nude',
+    nome: 'Conjunto Top Tomara que Caia',
+    preco: 'R$ 117,90',
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G', 'GG'],
+    alt: 'Modelo veste conjunto tomara que caia nude com calcinha de cintura alta',
+    nota: 'Consulte as cores disponíveis.',
+  },
+  {
+    slug: 'infantil-menina',
+    nome: 'Pijama Americano Infantil',
+    preco: 'R$ 129,90',
+    categoria: 'infantil',
+    // Numeracao por idade, e nao P/M/G: e como roupa infantil e vendida.
+    tamanhos: ['2', '4', '6', '8', '10', '12'],
+    alt: 'Criança veste pijama americano infantil de camisa e short com estampa de bichos',
+    cores: [
+      { nome: 'Menina', slug: 'infantil-menina' },
+      // Fonte de 747px: sem isto o srcset prometeria um 960 inexistente e a
+      // foto sumiria em tela densa.
+      { nome: 'Menino', slug: 'infantil-menino', larguras: [400, 800] },
+    ],
+    nota: 'Tamanhos de 2 a 12 anos. Consulte as estampas disponíveis.',
   },
 
   /* Pecas sem foto ainda.

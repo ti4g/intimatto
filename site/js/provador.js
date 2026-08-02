@@ -119,7 +119,10 @@
   }
 
   function linha(item) {
-    const p = PRODUTOS.find((x) => x.slug === item.slug);
+    // O item guarda o slug da COR escolhida, entao a busca precisa aceitar os
+    // dois — e a foto da linha e a daquela cor, nao a da primeira.
+    const p = Carrinho.produtoDe(item.slug);
+    const cor = Carrinho.corDe(item.slug);
     const sub = Carrinho.subtotal(item);
 
     const chips = p.tamanhos
@@ -134,14 +137,16 @@
       <li class="linha" data-slug="${esc(item.slug)}" data-tamanho="${esc(item.tamanho)}">
         <button class="linha__foto" type="button" aria-label="Ver ${esc(p.nome)}">
           <picture>
-            ${Peca.fontes(p.slug, '6rem')}
-            <img src="img/produtos/${esc(p.slug)}-400.webp" width="960" height="1200"
+            ${Peca.fontes(item.slug, '6rem')}
+            <img src="img/produtos/${esc(item.slug)}-400.webp" width="960" height="1200"
                  loading="lazy" decoding="async" alt="">
           </picture>
         </button>
 
         <div class="linha__info">
-          <p class="linha__nome">${esc(p.nome)}</p>
+          <p class="linha__nome">${esc(p.nome)}${
+            cor ? `<span class="linha__cor"> · ${esc(cor)}</span>` : ''
+          }</p>
           <div class="linha__tamanhos" role="group" aria-label="Tamanho de ${esc(p.nome)}">
             ${chips}
           </div>
@@ -204,10 +209,15 @@
     if (!itens.length) return '#';
 
     const linhas = itens.map((i) => {
-      const p = PRODUTOS.find((x) => x.slug === i.slug);
+      const p = Carrinho.produtoDe(i.slug);
+      const cor = Carrinho.corDe(i.slug);
       const sub = Carrinho.subtotal(i);
       return (
-        `• ${p.nome} — Tam ${i.tamanho}` +
+        `• ${p.nome}` +
+        // A cor vem antes do tamanho: sem ela a loja teria que perguntar qual,
+        // e a mensagem existe justamente pra chegar completa.
+        (cor ? ` — ${cor}` : '') +
+        ` — Tam ${i.tamanho}` +
         // "un" so quando passa de 1: escrever "1 un" em toda linha e ruido.
         (i.qtd > 1 ? ` — ${i.qtd} un` : '') +
         (sub === null ? '' : ` — ${Carrinho.emReais(sub)}`)
