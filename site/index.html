@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#484344">
 <title>Intimatto Delles — Coleção Essence</title>
 <meta name="description" content="Roupa feminina e moda íntima em Palmas. Coleção Essence.">
-<link rel="canonical" href="https://ti4g.github.io/intimatto/">
+<link rel="canonical" href="https://intimattodelles.com.br/">
 
 <!-- O link desta loja circula em story e bio do Instagram e em conversa de
      WhatsApp. Sem isto ele aparece como retangulo cinza sem imagem. -->
@@ -18,9 +18,9 @@
 <meta property="og:site_name" content="Intimatto Delles">
 <meta property="og:title" content="Intimatto Delles — Coleção Essence">
 <meta property="og:description" content="Roupa feminina e moda íntima em Palmas. Escolha as peças e fale com a gente no WhatsApp.">
-<meta property="og:url" content="https://ti4g.github.io/intimatto/">
+<meta property="og:url" content="https://intimattodelles.com.br/">
 <meta property="og:locale" content="pt_BR">
-<meta property="og:image" content="https://ti4g.github.io/intimatto/img/social/og.jpg">
+<meta property="og:image" content="https://intimattodelles.com.br/img/social/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Intimatto Delles — Coleção Essence">
@@ -41,7 +41,7 @@
 <link rel="preload" as="image" href="img/hero/vitrine-43-poster.webp" fetchpriority="high">
 <!-- O logo agora e a marca do hero, nao enfeite de rodape: entra na mesma
      leva do poster pra nao aparecer depois que a cliente ja olhou a tela. -->
-<link rel="preload" as="image" href="img/logo/logo.png" fetchpriority="high">
+<link rel="preload" as="image" href="img/logo/wordmark.png" fetchpriority="high">
 
 <link rel="stylesheet" href="css/style.css">
 
@@ -54,8 +54,8 @@
   "@type": "ClothingStore",
   "name": "Intimatto Delles",
   "description": "Roupa feminina e moda íntima em Palmas, Tocantins.",
-  "url": "https://ti4g.github.io/intimatto/",
-  "image": "https://ti4g.github.io/intimatto/img/social/og.jpg",
+  "url": "https://intimattodelles.com.br/",
+  "image": "https://intimattodelles.com.br/img/social/og.jpg",
   "telephone": "+5563991266674",
   "taxID": "47.047.775/0001-86",
   "address": {
@@ -92,8 +92,10 @@
 </noscript>
 
 <header class="header">
-  <!-- "./" e nao "/": o site vive em /intimatto/, entao a barra sozinha
-       apontaria pra raiz do dominio e jogaria a cliente pra fora. -->
+  <!-- "./" e nao "/". No dominio proprio os dois dariam no mesmo, mas o "./"
+       continua valendo se a pagina for servida de uma subpasta de novo — foi
+       o caso ate o dominio entrar (ti4g.github.io/intimatto/), e e o caso de
+       qualquer previa local. Caminho relativo nao tem desvantagem aqui. -->
   <!-- Enquanto o hero esta na tela este wordmark fica escondido: o logo da
        loja ja esta grande na base do video, e repetir a marca em texto logo
        acima dele so enche o topo. Ele volta na rolagem, quando o logo sai de
@@ -190,7 +192,7 @@
          composto sobre o meio do quadro da 2,33:1 e sobre o creme do desktop
          da 1,42:1, mas sobre a base — onde o scrim e forte — passa de 5:1. -->
     <h1 class="hero__marca" id="hero-titulo">
-      <img class="hero__logo" src="img/logo/logo.png" width="800" height="180"
+      <img class="hero__logo" src="img/logo/wordmark.png" width="800" height="180"
            fetchpriority="high" decoding="async" alt="Intimatto Delles">
       <span class="hero__bordao voz-ar">Um projeto <b>Delles</b> pra <b>Elas</b></span>
     </h1>
@@ -261,7 +263,7 @@
        traz a silhueta que o cliente pediu pra tirar, e ele so funcionava aqui
        por causa do mix-blend-mode: screen, que comia o fundo preto dele. Com
        alfa de verdade o truque deixa de ser necessario. -->
-  <img class="rodape__logo" src="img/logo/logo.png" width="800" height="180"
+  <img class="rodape__logo" src="img/logo/wordmark.png" width="800" height="180"
        loading="lazy" decoding="async" alt="Intimatto Delles">
   <nav class="rodape__links" aria-label="Contato">
     <a class="rodape__link" href="https://instagram.com/intimattodelles"
@@ -357,6 +359,10 @@
 
 <!-- Ordem importa: carrinho.js e o estado, app.js expoe Peca, e o provador.js
      depende dos dois. -->
+<!-- Vem primeiro porque app.js e provador.js chamam Medir.evento() na hora
+     em que rodam. O SDK do Firebase so comeca a baixar depois do load da
+     pagina — ver a nota no proprio arquivo. -->
+<script src="js/medir.js"></script>
 <script src="js/produtos.js"></script>
 <script src="js/carrinho.js"></script>
 <script src="js/app.js"></script>

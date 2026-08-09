@@ -101,6 +101,15 @@ const Peca = (function () {
       if (!botao || botao.dataset.cat === categoriaAtiva) return;
 
       categoriaAtiva = botao.dataset.cat;
+
+      /* Qual categoria a cliente procura diz o que a loja deveria estar
+         fotografando primeiro — se "Moda intima" for a mais tocada, e la que
+         faltam fotos, nao no catalogo inteiro. */
+      Medir.evento('select_content', {
+        content_type: 'categoria',
+        item_id: categoriaAtiva,
+      });
+
       barra.querySelectorAll('.filtro__botao').forEach((b) => {
         b.setAttribute('aria-pressed', String(b.dataset.cat === categoriaAtiva));
       });
@@ -262,6 +271,10 @@ const Peca = (function () {
     corEscolhida = p.cores ? (p.cores.find((c) => c.slug === slug) || p.cores[0]) : null;
     tamanhoEscolhido = p.tamanhos.includes(tamanhoPrevio) ? tamanhoPrevio : null;
 
+    // Qual peca a cliente parou pra olhar. E o topo do funil: sem isto, o
+    // painel so diria quantas pessoas entraram, nunca no que elas mexeram.
+    Medir.evento('view_item', { item_id: p.slug, item_name: p.nome });
+
     pintarFoto();
     montarCores();
 
@@ -403,6 +416,15 @@ const Peca = (function () {
     const origem = foto ? foto.getBoundingClientRect() : null;
 
     Carrinho.adicionar(slug, tamanho);
+
+    /* O tamanho vai junto de proposito. Se a loja perceber que muita gente
+       leva GG numa peca que ela so tem ate G, isso e informacao de compra, e
+       nao so de site. */
+    Medir.evento('add_to_cart', {
+      item_id: slug,
+      item_name: p.nome,
+      item_variant: tamanho,
+    });
 
     // Fecha e devolve a cliente pro catalogo. O voo da foto ate o header e o
     // que conta o que aconteceu — sem ele, o modal some e a peca parece ter

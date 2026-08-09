@@ -145,7 +145,7 @@ const SAIDA = path.join(RAIZ, 'site', 'img', 'logo');
      em 1170px so engordava o arquivo. E o desenho e um degrade dourado sobre
      transparente: 128 cores cobrem a rampa inteira sem faixa visivel, e
      levam o PNG de 415 KB pra uma fracao disso. */
-  const destino = path.join(SAIDA, 'logo.png');
+  const destino = path.join(SAIDA, 'wordmark.png');
   await sharp(recortado)
     .resize({ width: 800, withoutEnlargement: true })
     .png({ compressionLevel: 9, palette: true, colours: 128 })
@@ -153,7 +153,7 @@ const SAIDA = path.join(RAIZ, 'site', 'img', 'logo');
 
   const m = await sharp(destino).metadata();
   const kb = Math.round(fs.statSync(destino).size / 1024);
-  console.log(`logo.png        ${m.width}x${m.height}  ${kb} KB  alfa=${m.hasAlpha}`);
+  console.log(`wordmark.png       ${m.width}x${m.height}  ${kb} KB  alfa=${m.hasAlpha}`);
 
   /* ── A versao em tinta ──────────────────────────────────────────────────
 
@@ -183,7 +183,7 @@ const SAIDA = path.join(RAIZ, 'site', 'img', 'logo');
     px[i + 2] = TINTA[2];
   }
 
-  const emTinta = path.join(SAIDA, 'logo-tinta.png');
+  const emTinta = path.join(SAIDA, 'wordmark-tinta.png');
   await sharp(px, { raw: { width: info.width, height: info.height, channels: 4 } })
     .resize({ width: 800, withoutEnlargement: true })
     .png({ compressionLevel: 9, palette: true, colours: 64 })
@@ -191,7 +191,7 @@ const SAIDA = path.join(RAIZ, 'site', 'img', 'logo');
 
   const mt = await sharp(emTinta).metadata();
   const kbt = Math.round(fs.statSync(emTinta).size / 1024);
-  console.log(`logo-tinta.png  ${mt.width}x${mt.height}  ${kbt} KB  alfa=${mt.hasAlpha}`);
+  console.log(`wordmark-tinta.png ${mt.width}x${mt.height}  ${kbt} KB  alfa=${mt.hasAlpha}`);
 
   /* Previa do hero como ele e de verdade.
 

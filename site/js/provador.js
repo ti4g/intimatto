@@ -323,6 +323,33 @@
     rotear();
   });
 
+  /* ── A conversao ─────────────────────────────────────────── */
+  /* Tocar em "Enviar no WhatsApp" e o unico gesto que a loja realmente
+     precisa: dali em diante a venda acontece na conversa, fora do site, e o
+     site perde a cliente de vista. E por isso o evento mais importante do
+     painel — tudo o que vem antes e caminho ate aqui.
+
+     begin_checkout e nao um nome inventado: o GA4 ja tem funil pronto pra ele,
+     entao o console mostra view_item -> add_to_cart -> begin_checkout sem
+     ninguem montar relatorio na mao. */
+  botaoWpp?.addEventListener('click', () => {
+    if (Carrinho.vazio()) return;
+
+    const total = Carrinho.total();
+    Medir.evento('begin_checkout', {
+      currency: 'BRL',
+      // Vai sem value quando alguma peca esta sem preco legivel: numero pela
+      // metade no painel e pior que numero nenhum, igual ao total da tela.
+      ...(total === null ? {} : { value: total }),
+      items: Carrinho.itens().map((i) => ({
+        item_id: i.slug,
+        item_name: Carrinho.produtoDe(i.slug)?.nome,
+        item_variant: i.tamanho,
+        quantity: i.qtd,
+      })),
+    });
+  });
+
   /* ── O botao do header ───────────────────────────────────── */
 
   function pintarHeader() {
