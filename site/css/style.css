@@ -488,24 +488,30 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ── Hero ─────────────────────────────────────────────────── */
 
+/* A ALTURA VEM DO VIDEO, nao de dvh.
+
+   Antes era height: 72dvh, e funcionava porque o video era 9:16 — sobrava
+   altura de sobra e o cover so aparava o chao. O reel novo e deitado: preso
+   num container de 0,64 de proporcao, o cover cortaria a LARGURA, e e na
+   largura que moram as legendas ("Baby doll e Camisolas", "Alfaiataria"...).
+   Cortar ali destruiria justamente o que o corte 4:3 foi feito pra salvar.
+
+   Com a altura saindo do aspect-ratio da media, a caixa tem exatamente a
+   proporcao do arquivo e o cover nao corta um pixel. */
 .hero {
   display: grid;
-  /* height e nao min-height: min-height nao torna a altura do grid definida,
-     entao a linha 1fr virava o tamanho do conteudo e o hero estourava os
-     72dvh. E minmax(0, 1fr) e nao 1fr, porque 1fr tem minimo automatico e
-     tambem nao encolhe abaixo do conteudo. */
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-rows: auto;
   grid-template-columns: 1fr;
-  height: 72dvh;
 }
 
-/* Video e texto na MESMA celula: e isso que os sobrepoe no celular sem
-   duplicar DOM. No desktop o texto muda de coluna e o scrim some. */
+/* Video e texto na MESMA celula: e isso que os sobrepoe sem duplicar DOM. */
 .hero__media {
   grid-row: 1;
   grid-column: 1;
   position: relative;
-  min-height: 0;
+  /* 4:3 no celular — a proporcao do vitrine-43.mp4, que o <source media>
+     entrega abaixo de 48rem. No desktop vira 16:9, mais abaixo. */
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--fio);
 }
@@ -513,11 +519,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .hero__video {
   width: 100%;
   height: 100%;
+  /* Mesma proporcao da caixa: cover aqui nao corta nada, so garante que um
+     arredondamento de subpixel nao deixe fresta. */
   object-fit: cover;
-  /* O video e 9:16 (0,563) e a caixa fica perto de 0,72 no celular, entao o
-     cover corta altura. Ancorar no topo mantem cabeca e tronco e joga fora o
-     chao — o quadro ja terminava nas canelas dela mesmo. */
-  object-position: center top;
 }
 
 /* UM scrim so, na base, e ele existe pra sustentar o logo.
@@ -572,7 +576,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   align-self: end;
   z-index: 1;
   margin: 0;
-  padding: 0 var(--passo) calc(1.9rem + env(safe-area-inset-bottom, 0px));
+  /* 1,1rem e nao 1,9rem: o video vertical tinha 585px de altura e o lockup
+     podia flutuar longe da borda. No 4:3, com 281px, cada rem de respiro aqui
+     empurra o logo pra cima, na direcao das legendas do proprio reel. */
+  padding: 0 var(--passo) calc(1.1rem + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -581,12 +588,18 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   color: var(--branco);
 }
 
-/* 56vw teto 13rem. Menor que os 62vw de quando ele estava sozinho: com o
-   bordao embaixo, o conjunto inteiro precisa caber na faixa onde o scrim ainda
-   segura — subir mais joga o topo do desenho na zona clara do quadro, que e
-   onde o dourado lava. */
+/* 40vw teto 9rem — bem menor que os 56vw de antes.
+
+   O video vertical dava 585px de altura e o logo tinha onde pousar. O 4:3 da
+   281px no celular, e as legendas do proprio reel ficam no meio do quadro:
+   no tamanho antigo o lockup subia ate elas e as duas tipografias brigavam.
+   Neste, o conjunto ocupa so o terco de baixo, onde o scrim e mais forte. */
+/* Bem mais largo que os 33vw de antes, e pela mesma razao do rodape: sem a
+   silhueta a proporcao foi de 1,83 pra 4,44. A 33vw o wordmark daria 28px de
+   altura e sumiria; a 58vw ele volta a ter presenca sem subir na direcao das
+   legendas do reel — o que cresce e a largura, nao a altura. */
 .hero__logo {
-  width: min(56vw, 13rem);
+  width: min(58vw, 13rem);
   height: auto;
 }
 
@@ -690,24 +703,36 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
      O video continua coluna e nao sangra: 22rem por ~40rem de altura da 0,55,
      que e praticamente o 9:16 do arquivo — ele aparece quase sem corte. */
   .hero {
-    grid-template-columns: minmax(0, 22rem) minmax(0, 26rem);
+    /* A coluna do video quase DOBROU (22rem -> 38rem). Ela era estreita porque
+       segurava um 9:16 em pe; agora segura um 16:9 deitado, e video deitado em
+       coluna estreita vira selo. A 38rem ele da 608x342, que ainda deixa 20rem
+       de coluna editorial ao lado num 1280. */
+    grid-template-columns: minmax(0, 38rem) minmax(0, 20rem);
     justify-content: center;
-    align-items: stretch;
-    gap: clamp(2.5rem, 6vw, 6rem);
-    /* teto em rem pra nao esticar num monitor alto e jogar a grade pra fora da
-       primeira tela; 40rem casa com o 9:16 do video na largura de 22rem. */
-    height: min(72dvh, 40rem);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 4rem);
+    /* Sem height: a altura sai do aspect-ratio da media. Travar em dvh voltaria
+       a cortar a largura do quadro, que e onde estao as legendas. */
   }
 
   /* Video e logo ficam JUNTOS na coluna 1: o logo dourado so tem contraste
      sobre a base escura do video (no creme mede 1,42:1 e some). */
-  .hero__media { grid-column: 1; }
+  .hero__media {
+    grid-column: 1;
+    /* 16:9 aqui — e o vitrine.mp4 que o <source media> entrega a partir de
+       48rem. O 4:3 do celular e outro arquivo, com outro corte. */
+    aspect-ratio: 16 / 9;
+  }
   .hero__marca {
     grid-column: 1;
+    align-self: end;
     align-items: center;
-    padding: 0 1.5rem 2rem;
+    padding: 0 1.5rem 1.2rem;
   }
-  .hero__logo { width: min(72%, 13rem); }
+  /* Mesmo raciocinio do celular: sem a silhueta o wordmark e uma faixa larga
+     e baixa, entao pode crescer em largura sem chegar perto das legendas do
+     reel, que ficam no meio do quadro. */
+  .hero__logo { width: min(52%, 13rem); }
 
   /* ── Coluna editorial (direita) ── */
   .hero__editorial {
@@ -999,10 +1024,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   text-align: center;
 }
 
+/* Bem mais largo que antes (era 9-12rem) porque a proporcao mudou: sem a
+   silhueta o logo passou de quase quadrado (1,83) pra uma faixa de 4,44 — no
+   tamanho antigo ele viraria uma tira fina perdida no bloco preto.
+
+   Sem mix-blend-mode: screen. Ele existia pra comer o fundo preto do JPG; o
+   PNG tem alfa e pousa direto sobre o bloco. */
 .rodape__logo {
-  width: clamp(9rem, 34vw, 12rem);
+  width: clamp(13rem, 62vw, 19rem);
   height: auto;
-  mix-blend-mode: screen;
 }
 
 .rodape__links {

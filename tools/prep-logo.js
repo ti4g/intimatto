@@ -78,10 +78,66 @@ const SAIDA = path.join(RAIZ, 'site', 'img', 'logo');
   // arquivo passa a ser so o logo — da pra posicionar sem adivinhar margem.
   // .png() antes do toBuffer: sem formato declarado sharp devolve pixel cru,
   // que o proximo sharp() nao sabe ler.
-  const recortado = await sharp(cor, { raw: { width, height, channels: 4 } })
+  const comSilhueta = await sharp(cor, { raw: { width, height, channels: 4 } })
     .trim({ threshold: 1 })
     .png()
     .toBuffer();
+
+  /* ── Fora a silhueta ────────────────────────────────────────────────────
+
+     Pedido do cliente: o logo fica so com "INTIMATTO DELLES", sem a figura
+     feminina em traco que ficava por cima das letras.
+
+     A linha de corte NAO e um numero cravado — ela e medida a cada rodada,
+     porque numero cravado quebra silenciosamente no dia que a fonte mudar e
+     ninguem lembra por que o logo saiu torto.
+
+     O que separa as duas partes e a DENSIDADE por linha. Medido no arquivo
+     atual (800x436 depois do trim):
+
+         y 240-255   silhueta ... 1% a 6% da largura, e so do lado direito
+         y 256       letras ..... 50%, de x=0 a x=751, de uma vez
+
+     A transicao e abrupta porque o "I" de INTIMATTO comeca na margem
+     esquerda, onde a silhueta nunca chega. Qualquer corte entre 10% e 40%
+     acerta a mesma linha; 25% fica no meio da folga. */
+  const LIMIAR_LETRAS = 0.25;
+
+  const { data: linhas, info: dimTrim } = await sharp(comSilhueta)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  let topoDasLetras = 0;
+  for (let y = 0; y < dimTrim.height; y++) {
+    let tinta = 0;
+    for (let x = 0; x < dimTrim.width; x++) {
+      if (linhas[(y * dimTrim.width + x) * 4 + 3] > 90) tinta++;
+    }
+    if (tinta > dimTrim.width * LIMIAR_LETRAS) { topoDasLetras = y; break; }
+  }
+
+  if (!topoDasLetras) {
+    throw new Error(
+      'Nao achei onde as letras comecam. A fonte mudou de proporcao? ' +
+      'Rodar o perfil de densidade a mao antes de confiar no corte.'
+    );
+  }
+
+  const recortado = await sharp(comSilhueta)
+    .extract({
+      left: 0,
+      top: topoDasLetras,
+      width: dimTrim.width,
+      height: dimTrim.height - topoDasLetras,
+    })
+    .png()
+    .toBuffer();
+
+  console.log(
+    `silhueta cortada em y=${topoDasLetras} de ${dimTrim.height} ` +
+    `(sobrou ${dimTrim.height - topoDasLetras}px de wordmark)`
+  );
 
   /* 800px de largura e paleta de 128 cores.
 
@@ -97,7 +153,45 @@ const SAIDA = path.join(RAIZ, 'site', 'img', 'logo');
 
   const m = await sharp(destino).metadata();
   const kb = Math.round(fs.statSync(destino).size / 1024);
-  console.log(`logo.png  ${m.width}x${m.height}  ${kb} KB  alfa=${m.hasAlpha}`);
+  console.log(`logo.png        ${m.width}x${m.height}  ${kb} KB  alfa=${m.hasAlpha}`);
+
+  /* ── A versao em tinta ──────────────────────────────────────────────────
+
+     O mesmo desenho, pintado de --tinta em vez de dourado.
+
+     Existe por medicao, nao por gosto: o logo dourado composto sobre o creme
+     da pagina (--luz) rende 1,42:1 — ele literalmente some. So funcionava
+     sobre o video porque o scrim da base escurecia o fundo ate 5,35:1.
+
+     Com o hero 16:9, o logo desceu pro papel, e no papel o ouro nao pode ser
+     desenho pela mesma razao que nao pode ser letra. Em tinta o mesmo traco
+     da 15,9:1. O dourado nao se perde na pagina: ele continua no proprio
+     video, nos sublinhados do bordao, no disco da sacola e nos chips.
+
+     So o RGB muda — o alfa e o mesmo, entao a borda translucida e o
+     antisserrilhado que a curva acima produziu continuam valendo. */
+  const TINTA = [0x1a, 0x1a, 0x18];
+
+  const { data: px, info } = await sharp(recortado)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  for (let i = 0; i < px.length; i += 4) {
+    px[i] = TINTA[0];
+    px[i + 1] = TINTA[1];
+    px[i + 2] = TINTA[2];
+  }
+
+  const emTinta = path.join(SAIDA, 'logo-tinta.png');
+  await sharp(px, { raw: { width: info.width, height: info.height, channels: 4 } })
+    .resize({ width: 800, withoutEnlargement: true })
+    .png({ compressionLevel: 9, palette: true, colours: 64 })
+    .toFile(emTinta);
+
+  const mt = await sharp(emTinta).metadata();
+  const kbt = Math.round(fs.statSync(emTinta).size / 1024);
+  console.log(`logo-tinta.png  ${mt.width}x${mt.height}  ${kbt} KB  alfa=${mt.hasAlpha}`);
 
   /* Previa do hero como ele e de verdade.
 

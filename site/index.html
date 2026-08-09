@@ -33,8 +33,12 @@
 <link rel="preload" href="fonts/jost-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jost-300.woff2" as="font" type="font/woff2" crossorigin>
 
-<!-- O poster e o LCP: ele pinta antes do video ter um frame decodificado. -->
-<link rel="preload" as="image" href="img/hero/essence-poster.webp" fetchpriority="high">
+<!-- O poster e o LCP: ele pinta antes do video ter um frame decodificado.
+     E so o 4:3, mesmo no desktop: o atributo poster= aceita um arquivo unico,
+     e o 4:3 e o que sobrevive aos dois enquadramentos — na caixa 16:9 o cover
+     apara em cima e embaixo, e o letreiro, que e centrado, continua inteiro.
+     O contrario cortaria os lados, que e onde o letreiro termina. -->
+<link rel="preload" as="image" href="img/hero/vitrine-43-poster.webp" fetchpriority="high">
 <!-- O logo agora e a marca do hero, nao enfeite de rodape: entra na mesma
      leva do poster pra nao aparecer depois que a cliente ja olhou a tela. -->
 <link rel="preload" as="image" href="img/logo/logo.png" fetchpriority="high">
@@ -130,17 +134,33 @@
      em que ela estava. De brinde, camada sobre camada fica impossivel de
      acontecer, porque nao existe camada de topo aqui. -->
 <section id="catalogo">
-  <!-- O video e da propria campanha da loja. Mudo, em loop, com poster: o iOS
-       so faz autoplay de video mudo, e em Modo de Baixo Consumo ele bloqueia
-       mesmo assim — nesse caso o poster e o que a cliente ve. Fica
-       aria-hidden porque nao carrega informacao alem do h1 ao lado. -->
+  <!-- O reel da propria loja: passa por Baby doll, Lingeries, Jeans, Linha
+       conforto, Alfaiataria e Moda praia, com uma cartela de texto em cada
+       secao. Substituiu o corte vertical de 4,9s que mostrava uma modelo so —
+       este diz o tamanho da loja inteira.
+
+       DOIS ARQUIVOS, um por proporcao. O reel e 16:9, e 16:9 num celular vira
+       uma faixa de 211px; o vitrine-43 e o mesmo reel cortado em 4:3, que
+       devolve 281px de altura sem perder as legendas. O corte 4:5 chegou a ser
+       tentado e nao cabe: ver a conta em tools/prep-video.js.
+
+       O atributo media em <source> tem fama de nao funcionar em video — foi
+       testado neste projeto, nas duas larguras, e funciona. A ordem importa:
+       o navegador pega a PRIMEIRA fonte cujo media casa, entao o desktop vem
+       antes e o 4:3 fica por ultimo, sem media, como padrao.
+
+       Mudo, em loop, com poster: o iOS so faz autoplay de video mudo, e em
+       Modo de Baixo Consumo ele bloqueia mesmo assim — nesse caso o poster,
+       que e o letreiro dourado da loja, e o que a cliente ve. Fica aria-hidden
+       porque nao carrega informacao alem do h1 ao lado. -->
   <section class="hero" aria-labelledby="hero-titulo">
     <div class="hero__media">
       <video class="hero__video" id="hero-video"
              autoplay muted loop playsinline preload="auto"
-             poster="img/hero/essence-poster.webp"
-             width="720" height="1280" aria-hidden="true" tabindex="-1">
-        <source src="img/hero/essence.mp4" type="video/mp4">
+             poster="img/hero/vitrine-43-poster.webp"
+             width="800" height="600" aria-hidden="true" tabindex="-1">
+        <source src="img/hero/vitrine.mp4" type="video/mp4" media="(min-width: 48rem)">
+        <source src="img/hero/vitrine-43.mp4" type="video/mp4">
       </video>
     </div>
     <!-- O logo da loja, e nao tipografia que imita o logo.
@@ -170,7 +190,7 @@
          composto sobre o meio do quadro da 2,33:1 e sobre o creme do desktop
          da 1,42:1, mas sobre a base — onde o scrim e forte — passa de 5:1. -->
     <h1 class="hero__marca" id="hero-titulo">
-      <img class="hero__logo" src="img/logo/logo.png" width="800" height="436"
+      <img class="hero__logo" src="img/logo/logo.png" width="800" height="180"
            fetchpriority="high" decoding="async" alt="Intimatto Delles">
       <span class="hero__bordao voz-ar">Um projeto <b>Delles</b> pra <b>Elas</b></span>
     </h1>
@@ -237,7 +257,11 @@
 </main>
 
 <footer class="rodape">
-  <img class="rodape__logo" src="img/logo/logo.jpg" width="1053" height="1053"
+  <!-- O PNG com alfa, e nao o JPG quadrado de antes. Duas razoes: o JPG ainda
+       traz a silhueta que o cliente pediu pra tirar, e ele so funcionava aqui
+       por causa do mix-blend-mode: screen, que comia o fundo preto dele. Com
+       alfa de verdade o truque deixa de ser necessario. -->
+  <img class="rodape__logo" src="img/logo/logo.png" width="800" height="180"
        loading="lazy" decoding="async" alt="Intimatto Delles">
   <nav class="rodape__links" aria-label="Contato">
     <a class="rodape__link" href="https://instagram.com/intimattodelles"
