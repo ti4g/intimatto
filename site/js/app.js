@@ -443,7 +443,11 @@ const Peca = (function () {
 
      Separada do voo de proposito. O voo e o floreio; isto e o recado. Se um
      nao acontecer, o outro ainda avisa que a peca entrou. */
-  const TEMPO_AVISO = 2500;
+  /* 1500ms e o piso de leitura: a faixa traz miniatura + nome + cor + tamanho,
+     e a cliente precisa de ~1,5s pra ler isso sem correr. Menos que isso ela
+     pisca e perde o "no provador", que e a parte que ensina onde a peca foi
+     parar. Era 2500, que arrastava o recado depois de ela ja ter entendido. */
+  const TEMPO_AVISO = 1500;
   let apagarPulso;
   let apagarAviso;
 
