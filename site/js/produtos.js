@@ -122,23 +122,6 @@ const PRODUTOS = [
     larguras: [400, 800],
   },
   {
-    slug: 'jeans-wide',
-    nome: 'Calça Wide Leg Jeans',
-    preco: 'R$ 229,90', // PLACEHOLDER
-    categoria: 'baixo',
-    tamanhos: ['36', '38', '40', '42'], // PLACEHOLDER — a loja nao passou a grade
-    alt: 'Modelo veste body preto com calça jeans wide leg azul claro',
-  },
-  {
-    slug: 'vestido-marrom',
-    nome: 'Vestido Cetim Marrom',
-    preco: 'R$ 279,90', // PLACEHOLDER — estimado, a loja ainda nao passou
-    categoria: 'unica',
-    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
-    alt: 'Modelo veste vestido midi de cetim marrom com decote drapeado',
-    larguras: [400, 800],
-  },
-  {
     slug: 'robe-preto',
     nome: 'Robe de Renda Preto',
     preco: 'R$ 129,90', // confirmado pela loja
@@ -208,11 +191,22 @@ const PRODUTOS = [
   },
   {
     slug: 'conjunto-marrom',
-    nome: 'Conjunto Pantalona Marrom',
+    nome: 'Macacão Tomara Que Caia',
     preco: 'R$ 319,90', // PLACEHOLDER
     categoria: 'unica',
-    tamanhos: ['P', 'M', 'G'], // PLACEHOLDER — a loja nao passou a grade
+    // Fallback: vale pra cor que nao declarar a sua grade. Hoje as duas
+    // declaram, entao este so existe por seguranca.
+    tamanhos: ['P', 'M', 'G'],
     alt: 'Modelo veste conjunto marrom de top tomara que caia e calça pantalona',
+    // Grade veio da loja POR COR: Marrom em P/M/G, Azul Marinho so no G. Cada
+    // cor so oferece o que existe — 'tamanhos' por cor evita a cliente pedir um
+    // tamanho fantasma (a regra que o resto do catalogo persegue).
+    // FOTO PENDENTE: 'conjunto-azul-marinho' ainda nao existe em img/produtos;
+    // ate a original entrar e o prep-imagens rodar, essa cor abre quebrada.
+    cores: [
+      { nome: 'Marrom', slug: 'conjunto-marrom', tamanhos: ['P', 'M', 'G'] },
+      { nome: 'Azul Marinho', slug: 'conjunto-azul-marinho', tamanhos: ['G'] },
+    ],
   },
   {
     slug: 'polo-preta',
@@ -326,6 +320,23 @@ const PRODUTOS = [
       { nome: 'Menino', slug: 'infantil-menino', larguras: [400, 800] },
     ],
     nota: 'Tamanhos de 2 a 12 anos. Consulte as estampas disponíveis.',
+  },
+
+  /* ── Lote de 2026-08-12 ──────────────────────────────────── */
+  {
+    slug: 'calca-jeans-wide-claro',
+    nome: 'Calça Jeans Wide Leg',
+    preco: 'R$ 309,90', // confirmado pela loja
+    categoria: 'baixo',
+    tamanhos: ['36', '38', '40'], // confirmado pela loja
+    alt: 'Modelo veste calça jeans wide leg de cintura alta e pernas bem amplas',
+    // Duas lavagens da mesma modelagem, num card so. O slug do produto e o da
+    // PRIMEIRA cor (claro), que e a que aparece na grade. Fontes 960px, entao
+    // as duas saem em 400/800/960 e nenhuma precisa de 'larguras'.
+    cores: [
+      { nome: 'Azul Claro', slug: 'calca-jeans-wide-claro' },
+      { nome: 'Azul Escuro', slug: 'calca-jeans-wide-escuro' },
+    ],
   },
 
   /* Pecas sem foto ainda.

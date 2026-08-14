@@ -155,6 +155,19 @@ const alvos = [
   // Pijama infantil — R$ 129,90 — 2 a 12 anos
   { fonte: 'novas-2026-08-02/infantil-menina.webp',      slug: 'infantil-menina',      recorte: { left: 0, top: 40,  width: 864, height: 1080 } },
   { fonte: 'novas-2026-08-02/infantil-menino.webp',      slug: 'infantil-menino',      recorte: { left: 0, top: 50,  width: 747, height: 934 } },
+
+  /* ── Lote de 2026-08-12 ────────────────────────────────────
+
+     Fotos de loja 960x1280 (0,750), como as primeiras do arquivo: o 4:5 tira
+     80px do topo (o trilho de luz e as luminarias de corda que so poluem o
+     quadro). Duas novidades:
+
+       macacao   ganha a cor Azul Marinho (a Marrom ja existia)
+       wide leg  peca nova, em duas lavagens — cada uma seu arquivo, juntas
+                 num card so pelo produtos.js (claro e escuro) */
+  { fonte: 'loja-conjunto-azul-marinho.webp', slug: 'conjunto-azul-marinho',   recorte: { left: 0, top: 80, width: 960, height: 1200 } },
+  { fonte: 'loja-jeans-wide-claro.webp',      slug: 'calca-jeans-wide-claro',  recorte: { left: 0, top: 80, width: 960, height: 1200 } },
+  { fonte: 'loja-jeans-wide-escuro.webp',     slug: 'calca-jeans-wide-escuro', recorte: { left: 0, top: 80, width: 960, height: 1200 } },
 ];
 
 // Fonte de 720 ou 750 de largura: 960 seria ampliacao de 1,3x, que engorda o

@@ -269,7 +269,7 @@ const Peca = (function () {
 
     pecaAberta = p;
     corEscolhida = p.cores ? (p.cores.find((c) => c.slug === slug) || p.cores[0]) : null;
-    tamanhoEscolhido = p.tamanhos.includes(tamanhoPrevio) ? tamanhoPrevio : null;
+    tamanhoEscolhido = tamanhosAtuais().includes(tamanhoPrevio) ? tamanhoPrevio : null;
 
     // Qual peca a cliente parou pra olhar. E o topo do funil: sem isto, o
     // painel so diria quantas pessoas entraram, nunca no que elas mexeram.
@@ -287,20 +287,7 @@ const Peca = (function () {
     nota.textContent = p.nota || '';
     nota.hidden = !p.nota;
 
-    const opcoes = document.getElementById('modal-tamanhos');
-    opcoes.innerHTML = p.tamanhos
-      .map(
-        (t) =>
-          `<button class="tamanho" type="button" ` +
-          `aria-pressed="${t === tamanhoEscolhido}" ` +
-          `data-tamanho="${esc(t)}">${esc(t)}</button>`
-      )
-      .join('');
-
-    opcoes.querySelectorAll('.tamanho').forEach((b) => {
-      b.addEventListener('click', () => escolherTamanho(b.dataset.tamanho, opcoes));
-    });
-
+    montarTamanhos();
     atualizarBotaoAdd();
     dlg.showModal();
     // O scroll do fundo trava por CSS (body:has(.modal[open])), nao daqui.
@@ -312,6 +299,29 @@ const Peca = (function () {
       b.setAttribute('aria-pressed', String(b.dataset.tamanho === t));
     });
     atualizarBotaoAdd();
+  }
+
+  /* A grade da COR escolhida quando ela declara a sua; senao a do produto.
+     E o que faz "Azul Marinho so no G" nao mostrar P/M que nao existem. Peca
+     sem cores — ou cor sem grade propria — cai no tamanhos do produto, entao
+     todo o resto do catalogo segue igual. */
+  const tamanhosAtuais = () =>
+    (corEscolhida && corEscolhida.tamanhos) || pecaAberta.tamanhos;
+
+  function montarTamanhos() {
+    const opcoes = document.getElementById('modal-tamanhos');
+    opcoes.innerHTML = tamanhosAtuais()
+      .map(
+        (t) =>
+          `<button class="tamanho" type="button" ` +
+          `aria-pressed="${t === tamanhoEscolhido}" ` +
+          `data-tamanho="${esc(t)}">${esc(t)}</button>`
+      )
+      .join('');
+
+    opcoes.querySelectorAll('.tamanho').forEach((b) => {
+      b.addEventListener('click', () => escolherTamanho(b.dataset.tamanho, opcoes));
+    });
   }
 
   /* ── Cores ──────────────────────────────────────────────── */
@@ -369,6 +379,11 @@ const Peca = (function () {
     if (!nova || nova.slug === corEscolhida.slug) return;
 
     corEscolhida = nova;
+    /* A grade pode mudar com a cor. Se o tamanho escolhido nao existe na cor
+       nova (trocar Marrom-M pra Azul Marinho, que so tem G), zera e remonta os
+       botoes — senao a cliente sairia pedindo um tamanho que essa cor nao tem. */
+    if (!tamanhosAtuais().includes(tamanhoEscolhido)) tamanhoEscolhido = null;
+    montarTamanhos();
     pintarFoto();
     caixa.querySelectorAll('.cor').forEach((b) => {
       b.setAttribute('aria-pressed', String(b.dataset.cor === slug));
