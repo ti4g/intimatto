@@ -168,6 +168,21 @@ const alvos = [
   { fonte: 'loja-conjunto-azul-marinho.webp', slug: 'conjunto-azul-marinho',   recorte: { left: 0, top: 80, width: 960, height: 1200 } },
   { fonte: 'loja-jeans-wide-claro.webp',      slug: 'calca-jeans-wide-claro',  recorte: { left: 0, top: 80, width: 960, height: 1200 } },
   { fonte: 'loja-jeans-wide-escuro.webp',     slug: 'calca-jeans-wide-escuro', recorte: { left: 0, top: 80, width: 960, height: 1200 } },
+
+  /* Mais pecas do mesmo dia (fotos de loja). Quase todas 960x1280 (top 80); a
+     blusa veio 1200x1600, entao o recorte e proporcional (top 100, 1200x1500 =
+     4:5) e ela sai ate 960 como as outras. */
+  { fonte: 'loja-conjunto-colete-calca.webp', slug: 'conjunto-colete-calca',   recorte: { left: 0, top: 80,  width: 960,  height: 1200 } },
+  { fonte: 'loja-vestido-bengaline.webp',     slug: 'vestido-bengaline',       recorte: { left: 0, top: 80,  width: 960,  height: 1200 } },
+  { fonte: 'loja-blusa-assimetrica.webp',     slug: 'blusa-assimetrica',       recorte: { left: 0, top: 100, width: 1200, height: 1500 } },
+  { fonte: 'loja-conjunto-alfaiataria.webp',  slug: 'conjunto-alfaiataria',    recorte: { left: 0, top: 80,  width: 960,  height: 1200 } },
+
+  /* Pijama malha fria: liso e estampado sao DOIS produtos no site (precos
+     diferentes). Liso = marinho (896px de fonte, sai ate 800). Estampado = dois
+     desenhos (coracoes e lacos) num card so. */
+  { fonte: 'loja-pijama-marinho.webp',  slug: 'pijama-malha-fria-liso',    recorte: { left: 0, top: 76, width: 896, height: 1120 } },
+  { fonte: 'loja-pijama-coracoes.webp', slug: 'pijama-estampado-coracoes', recorte: { left: 0, top: 80, width: 960, height: 1200 } },
+  { fonte: 'loja-pijama-lacos.webp',    slug: 'pijama-estampado-lacos',    recorte: { left: 0, top: 80, width: 960, height: 1200 } },
 ];
 
 // Fonte de 720 ou 750 de largura: 960 seria ampliacao de 1,3x, que engorda o
@@ -178,6 +193,8 @@ const SO_ATE_800 = new Set([
   // Lote de 2026-08-02: fontes de 681 a 747 de largura.
   'cinta-liga-preto', 'cinta-liga-vermelho',
   'camisola-longa-branca', 'infantil-menino',
+  // Lote 2026-08-12: liso do pijama tem 896px de fonte.
+  'pijama-malha-fria-liso',
 ]);
 
 /* Fonte pequena nao ganha nada sendo ampliada: 960 a partir de 450 e 2,1x de

@@ -338,13 +338,60 @@ const PRODUTOS = [
       { nome: 'Azul Escuro', slug: 'calca-jeans-wide-escuro' },
     ],
   },
+  {
+    slug: 'conjunto-colete-calca',
+    nome: 'Conjunto Colete + Calça',
+    preco: 'R$ 319,90', // confirmado pela loja
+    categoria: 'unica',
+    tamanhos: ['P', 'M'], // confirmado pela loja
+    alt: 'Modelo veste conjunto de colete alfaiatado e calça reta na cor vinho',
+  },
+  {
+    slug: 'vestido-bengaline',
+    nome: 'Vestido Justo em Bengaline',
+    preco: 'R$ 249,90', // confirmado pela loja
+    categoria: 'unica',
+    tamanhos: ['PP', 'M', 'G'], // confirmado pela loja
+    alt: 'Modelo veste vestido midi justo em bengaline vinho de gola alta com recorte no busto',
+  },
+  {
+    slug: 'blusa-assimetrica',
+    nome: 'Blusa Assimétrica com Ombreira',
+    preco: 'R$ 109,90', // confirmado pela loja
+    categoria: 'cima',
+    tamanhos: ['P', 'M', 'G'], // confirmado pela loja
+    alt: 'Modelo veste blusa assimétrica de um ombro só com ombreira estruturada',
+  },
+  {
+    slug: 'conjunto-alfaiataria',
+    nome: 'Conjunto Alfaiataria',
+    preco: 'R$ 459,90', // confirmado pela loja
+    categoria: 'unica',
+    tamanhos: ['38', '40'], // confirmado pela loja
+    alt: 'Modelo veste conjunto de alfaiataria cinza com blusa de manga bufante em um ombro e calça pantalona',
+  },
 
-  /* Pecas sem foto ainda.
-
-     Sem 'slug' o card vira "Em breve": aparece no catalogo com nome e preco,
-     mas nao abre. No dia que a foto chegar, e so gerar a imagem e escrever o
-     slug aqui — nada mais muda.
-
-     Servem tambem pra loja cadastrar a colecao inteira antes do ensaio ficar
-     pronto, em vez de esperar tudo pra publicar qualquer coisa. */
+  /* Pijama malha fria: liso e estampado sao DOIS produtos porque o preco muda
+     (149,90 x 154,90) e o modelo tem UM preco por peca. */
+  {
+    slug: 'pijama-malha-fria-liso',
+    nome: 'Pijama Americano Malha Fria Liso',
+    preco: 'R$ 149,90', // confirmado pela loja
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G', 'GG'], // confirmado pela loja
+    alt: 'Modelo veste pijama americano de manga curta em malha fria azul marinho com vivo branco',
+    larguras: [400, 800], // fonte 896px de largura
+  },
+  {
+    slug: 'pijama-estampado-coracoes',
+    nome: 'Pijama Americano Malha Fria Estampado',
+    preco: 'R$ 154,90', // confirmado pela loja
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G', 'GG'], // confirmado pela loja
+    alt: 'Modelo veste pijama americano de manga curta em malha fria com estampa',
+    cores: [
+      { nome: 'Corações', slug: 'pijama-estampado-coracoes' },
+      { nome: 'Laços', slug: 'pijama-estampado-lacos' },
+    ],
+  },
 ];
