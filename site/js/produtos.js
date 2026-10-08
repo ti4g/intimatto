@@ -97,7 +97,7 @@ const PRODUTOS = [
   {
     slug: 'blusa-verde',
     nome: 'Blusa Verde Ombro Único',
-    preco: 'R$ 119,90', // PLACEHOLDER — estimado, a loja ainda nao passou
+    preco: 'R$ 129,90', // PLACEHOLDER — estimado, a loja ainda nao passou
     categoria: 'cima',
     tamanhos: ['P', 'M', 'G'], // PLACEHOLDER
     alt: 'Modelo veste blusa verde claro de ombro único com fivela dourada e calça jeans wide',

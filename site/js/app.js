@@ -450,8 +450,11 @@ const Peca = (function () {
        confirmacao nao pode sumir junto. Ela e barata e roda de qualquer jeito;
        sob reduced-motion o proprio CSS neutraliza o movimento e sobra o texto,
        que e o que importa. */
-    const confirmar = () => confirmarEntrada(p, tamanho, slug);
-    if (!voarParaOProvador(foto, origem, confirmar)) confirmar();
+    // O recado sai NA HORA. O voo e so o floreio e nao pode segurar a mensagem
+    // — ainda mais que hoje ele nem anima (falta a regra CSS .voo), entao o
+    // aviso ficava preso no fallback de 900ms do voarParaOProvador ate agora.
+    confirmarEntrada(p, tamanho, slug);
+    voarParaOProvador(foto, origem, () => {});
   }
 
   /* A confirmacao: anel no icone, salto na contagem e a faixa escrita.
