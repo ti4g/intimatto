@@ -183,6 +183,26 @@ const alvos = [
   { fonte: 'loja-pijama-marinho.webp',  slug: 'pijama-malha-fria-liso',    recorte: { left: 0, top: 76, width: 896, height: 1120 } },
   { fonte: 'loja-pijama-coracoes.webp', slug: 'pijama-estampado-coracoes', recorte: { left: 0, top: 80, width: 960, height: 1200 } },
   { fonte: 'loja-pijama-lacos.webp',    slug: 'pijama-estampado-lacos',    recorte: { left: 0, top: 80, width: 960, height: 1200 } },
+
+  /* ── Lote de 2026-10-07 ────────────────────────────────────
+
+     Franja e tubinho sao fotos de loja 960x1280: top 80, menos o tubinho rose,
+     que tem o cabelo colado no topo do quadro (top 80 cortava a cabeca; com 50
+     sai so a ponta da sandalia).
+
+     Maite e ensaio de estudio 852x1280 (0,666): chegar a 4:5 custa 215px de
+     altura, e onde cortar muda de foto pra foto. No preto a sobra de cima e
+     parede, entao sai toda de la. No marrom o quadro ja comeca na boca; top 120
+     abre mao do queixo pra manter a calcinha inteira, que e metade do produto.
+     As duas tem 852 de largura e saem so ate 800 (ver SO_ATE_800). */
+  { fonte: 'novas-2026-10-07/conjunto-maite-preto.jpeg',          slug: 'conjunto-maite-preto',   recorte: { left: 0, top: 215, width: 852, height: 1065 } },
+  { fonte: 'novas-2026-10-07/conjunto-maite-marrom.jpeg',         slug: 'conjunto-maite-marrom',  recorte: { left: 0, top: 120, width: 852, height: 1065 } },
+  { fonte: 'novas-2026-10-07/vestido-franja-azul.jpeg',           slug: 'vestido-franja-azul',    recorte: { left: 0, top: 80,  width: 960, height: 1200 } },
+  { fonte: 'novas-2026-10-07/vestido-franja-caramelo.jpeg',       slug: 'vestido-franja-caramelo', recorte: { left: 0, top: 80,  width: 960, height: 1200 } },
+  { fonte: 'novas-2026-10-07/vestido-franja-cinza.jpeg',          slug: 'vestido-franja-cinza',   recorte: { left: 0, top: 80,  width: 960, height: 1200 } },
+  { fonte: 'novas-2026-10-07/vestido-tubinho-rose.jpeg',          slug: 'vestido-tubinho-rose',   recorte: { left: 0, top: 50,  width: 960, height: 1200 } },
+  // Do branco so chegou a foto de costas (a da frente veio com 0 bytes).
+  { fonte: 'novas-2026-10-07/vestido-tubinho-branco-costas.jpeg', slug: 'vestido-tubinho-branco', recorte: { left: 0, top: 80,  width: 960, height: 1200 } },
 ];
 
 // Fonte de 720 ou 750 de largura: 960 seria ampliacao de 1,3x, que engorda o
@@ -195,6 +215,8 @@ const SO_ATE_800 = new Set([
   'camisola-longa-branca', 'infantil-menino',
   // Lote 2026-08-12: liso do pijama tem 896px de fonte.
   'pijama-malha-fria-liso',
+  // Lote 2026-10-07: Maite tem 852px de fonte.
+  'conjunto-maite-preto', 'conjunto-maite-marrom',
 ]);
 
 /* Fonte pequena nao ganha nada sendo ampliada: 960 a partir de 450 e 2,1x de

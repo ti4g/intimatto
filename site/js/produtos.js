@@ -35,6 +35,10 @@ const WHATSAPP = '5563991266674';
     nota      OPCIONAL. Uma linha curta no modal. Serve pro que a loja mandou
               como "verificar disponibilidade de cores" — dizer que existem
               outras cores e honesto; inventar quais nao e
+    indisponivel  OPCIONAL. `true` quando a peca esgotou. Ela continua na
+              vitrine, apagada, com selo, e vai pro fim da grade; no modal some
+              a escolha de tamanho e o botao vira "Tenho interesse" (WhatsApp).
+              Quando voltar ao estoque, e so apagar a linha
 
   A ordem e a ordem da grade: cor alternada pra nenhuma fileira ficar monotona
   (2 col no celular, 3 no desktop).
@@ -71,6 +75,7 @@ const CATEGORIAS = [
 const PRODUTOS = [
   {
     slug: 'vestido-vinho',
+    indisponivel: true,
     nome: 'Vestido Vinho Gola Alta',
     preco: 'R$ 289,90', // PLACEHOLDER
     categoria: 'unica',
@@ -123,6 +128,7 @@ const PRODUTOS = [
   },
   {
     slug: 'robe-preto',
+    indisponivel: true,
     nome: 'Robe de Renda Preto',
     preco: 'R$ 129,90', // confirmado pela loja
     categoria: 'intima',
@@ -148,6 +154,7 @@ const PRODUTOS = [
   },
   {
     slug: 'vestido-preto',
+    indisponivel: true,
     nome: 'Vestido Preto Midi',
     preco: 'R$ 319,90', // confirmado pela loja
     categoria: 'unica',
@@ -156,6 +163,7 @@ const PRODUTOS = [
   },
   {
     slug: 'conjunto-vinho',
+    indisponivel: true,
     nome: 'Conjunto Colete e Calça Vinho',
     preco: 'R$ 319,90', // confirmado pela loja
     categoria: 'unica',
@@ -165,6 +173,7 @@ const PRODUTOS = [
   },
   {
     slug: 'short-preto',
+    indisponivel: true,
     nome: 'Short Alfaiataria Preto',
     preco: 'R$ 169,90', // PLACEHOLDER — estimado, a loja ainda nao passou
     categoria: 'baixo',
@@ -174,6 +183,7 @@ const PRODUTOS = [
   },
   {
     slug: 'blusa-marinho',
+    indisponivel: true,
     nome: 'Blusa Marinho Franzida',
     preco: 'R$ 109,90', // confirmado pela loja
     categoria: 'cima',
@@ -210,6 +220,7 @@ const PRODUTOS = [
   },
   {
     slug: 'polo-preta',
+    indisponivel: true,
     nome: 'Polo Canelada Preta',
     preco: 'R$ 129,90', // PLACEHOLDER
     categoria: 'cima',
@@ -392,6 +403,49 @@ const PRODUTOS = [
     cores: [
       { nome: 'Corações', slug: 'pijama-estampado-coracoes' },
       { nome: 'Laços', slug: 'pijama-estampado-lacos' },
+    ],
+  },
+
+  /* ── Lote de 2026-10-07 ────────────────────────────────────
+     Nome, grade e preco vieram no nome das pastas que a loja mandou. Os nomes
+     das cores sao descritivos (a loja nao nomeou): trocar se ela usar outros. */
+  {
+    slug: 'conjunto-maite-preto',
+    nome: 'Conjunto Maitê',
+    preco: 'R$ 144,90', // confirmado pela loja
+    categoria: 'intima',
+    tamanhos: ['P', 'M', 'G', 'GG'], // confirmado pela loja
+    alt: 'Modelo veste conjunto de lingerie em renda com sutiã de alças largas e calcinha',
+    // Fontes de 852px: as duas cores saem so ate 800, entao larguras por cor.
+    cores: [
+      { nome: 'Preto', slug: 'conjunto-maite-preto', larguras: [400, 800] },
+      { nome: 'Marrom', slug: 'conjunto-maite-marrom', larguras: [400, 800] },
+    ],
+  },
+  {
+    slug: 'vestido-franja-azul',
+    nome: 'Vestido Franja',
+    preco: 'R$ 399,90', // confirmado pela loja
+    categoria: 'unica',
+    tamanhos: ['P'], // confirmado pela loja: so tem P
+    alt: 'Modelo veste vestido curto de alças finas todo em camadas de franja',
+    cores: [
+      { nome: 'Azul', slug: 'vestido-franja-azul' },
+      { nome: 'Caramelo', slug: 'vestido-franja-caramelo' },
+      { nome: 'Cinza', slug: 'vestido-franja-cinza' },
+    ],
+  },
+  {
+    slug: 'vestido-tubinho-rose',
+    nome: 'Vestido Tubinho',
+    preco: 'R$ 259,90', // confirmado pela loja
+    categoria: 'unica',
+    tamanhos: ['PP', 'P', 'M', 'G'], // confirmado pela loja
+    alt: 'Modelo veste vestido tubinho longo tomara que caia com fenda atrás',
+    // Rose primeiro porque e a foto de frente; do branco so veio a de costas.
+    cores: [
+      { nome: 'Rosé', slug: 'vestido-tubinho-rose' },
+      { nome: 'Branco', slug: 'vestido-tubinho-branco' },
     ],
   },
 ];

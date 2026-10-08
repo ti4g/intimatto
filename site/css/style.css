@@ -1007,6 +1007,43 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 .peca--vazia .peca__legenda::before { background: var(--fio); }
 
+/* ── Peca esgotada ────────────────────────────────────────── */
+/* Fica na vitrine, mas recua: foto sem cor e meio apagada, selo escuro no
+   canto, nome em cinza. Cinza E transparencia juntos porque so a
+   transparencia, sobre o --luz, lavaria a foto mas manteria a cor — e a cor e
+   justamente o que puxa o olho pra uma peca que nao da pra levar.
+
+   O selo e --luz sobre --tinta (16:1): e texto, entao precisa ser lido, e e
+   o unico preto chapado da grade, o que basta pra ele aparecer sem gritar. */
+.peca--indisponivel .peca__botao { position: relative; }
+
+.peca--indisponivel .peca__foto[data-carregada] {
+  opacity: 0.55;
+  filter: grayscale(1);
+}
+
+/* Sem o zoom de lookbook: o movimento convida, e aqui nao ha o que oferecer. */
+.peca--indisponivel .peca__botao:hover .peca__foto[data-carregada],
+.peca--indisponivel .peca__botao:focus-visible .peca__foto[data-carregada] {
+  transform: none;
+}
+
+.peca__selo {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 1;
+  /* direita menor: o tracking da voz-ar deixa folga depois da ultima letra */
+  padding: 0.4rem 0.45rem 0.4rem 0.6rem;
+  background: var(--tinta);
+  color: var(--luz);
+  font-size: 0.5625rem;
+  line-height: 1;
+}
+
+.peca--indisponivel .peca__nome { color: var(--cinza); }
+.peca--indisponivel .peca__legenda::before { background: var(--fio); }
+
 /* ── Bloco preto ──────────────────────────────────────────── */
 /* O JPG do logo tem fundo preto, entao ele encaixa sem edicao. O bloco
    e #000000 exato: qualquer outro preto expoe a borda do JPG. O blend
@@ -1523,6 +1560,9 @@ body:has(.modal[open]), body:has(.provador[open]), body:has(.inteira[open]) { ov
 }
 
 .tamanhos { display: flex; flex-direction: column; gap: 0.6rem; }
+/* O display:flex acima vence o [hidden] do navegador, e o rotulo "Cor" ficava
+   sozinho na tela em toda peca sem cores. Agora o hidden do app.js vale. */
+.tamanhos[hidden] { display: none; }
 
 .tamanhos__label {
   font-size: 0.5625rem;
@@ -1645,6 +1685,9 @@ body:has(.modal[open]), body:has(.provador[open]), body:has(.inteira[open]) { ov
   transition: background 0.2s var(--curva);
 }
 .wpp:hover { background: var(--ouro-hover); }
+/* Mesmo motivo do .tamanhos[hidden]: o inline-block venceria o hidden e os
+   dois botoes do modal (provador e "tenho interesse") apareceriam juntos. */
+.wpp[hidden] { display: none; }
 
 /* Nenhuma peca marcada: o botao continua legivel mas nao convida.
 

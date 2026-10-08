@@ -332,7 +332,7 @@
              role="group" aria-labelledby="cores-label"></div>
       </div>
 
-      <div class="tamanhos">
+      <div class="tamanhos" id="modal-tamanhos-grupo">
         <span class="tamanhos__label voz-ar" id="tamanhos-label">Tamanho</span>
         <div class="tamanhos__opcoes" id="modal-tamanhos"
              role="group" aria-labelledby="tamanhos-label"></div>
@@ -342,6 +342,10 @@
            que existem outras e honesto, inventar quais nao e. -->
       <p class="modal__nota" id="modal-nota" hidden></p>
       <button class="wpp" id="modal-add" type="button">Levar ao provador</button>
+      <!-- Peca esgotada: no lugar do provador, um link de verdade pro WhatsApp
+           (abre em aba nova, funciona com toque longo). O app.js troca um pelo
+           outro e monta a mensagem com o nome da peca. -->
+      <a class="wpp" id="modal-interesse" href="#" target="_blank" rel="noopener" hidden>Tenho interesse</a>
     </div>
   </div>
 </dialog>

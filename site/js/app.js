@@ -126,13 +126,18 @@ const Peca = (function () {
     const alvo = document.getElementById('grade');
     if (!alvo) return;
 
-    const lista = doFiltro();
+    /* Esgotada vai pro fim, mantendo a ordem do resto (o sort e estavel). A
+       grade abre pelo que da pra levar; a peca apagada fica de vitrine, la
+       embaixo, sem quebrar a alternancia de cor do comeco. */
+    const lista = doFiltro()
+      .slice()
+      .sort((a, b) => Number(Boolean(a.indisponivel)) - Number(Boolean(b.indisponivel)));
 
-    // Conta so o que abre. Peca "Em breve" ainda nao e peca a venda, e
-    // anunciar 8 quando 6 funcionam e promessa que a pagina nao cumpre.
+    // Conta so o que esta a venda. Peca "Em breve" e peca esgotada nao sao, e
+    // anunciar 8 quando 6 podem ser levadas e promessa que a pagina nao cumpre.
     const conta = document.getElementById('grade-conta');
     if (conta) {
-      const n = lista.filter((p) => p.slug).length;
+      const n = lista.filter((p) => p.slug && !p.indisponivel).length;
       conta.textContent = n === 1 ? '1 peça' : `${n} peças`;
     }
 
@@ -184,10 +189,16 @@ const Peca = (function () {
       }
     });
 
+    /* Esgotada continua clicavel: quem toca quer saber da peca, e o modal e
+       onde ela pode dizer "tenho interesse". O selo fica DENTRO do botao, entao
+       o leitor de tela le "Indisponivel" junto com o nome. Fora do <picture>
+       porque ele so aceita <source> e <img>. */
     function cardComFoto(p, i) {
+      const esgotada = Boolean(p.indisponivel);
       return `
-        <li class="peca sobe" style="${cascata(i)}">
+        <li class="peca sobe${esgotada ? ' peca--indisponivel' : ''}" style="${cascata(i)}">
           <button class="peca__botao" type="button" data-slug="${esc(p.slug)}">
+            ${esgotada ? '<span class="peca__selo voz-ar">Indisponível</span>' : ''}
             <picture>
               ${fontes(p.slug, GRID_SIZES)}
               <img class="peca__foto" src="img/produtos/${esc(p.slug)}-800.webp"
@@ -281,16 +292,38 @@ const Peca = (function () {
     document.getElementById('modal-nome').textContent = p.nome;
     document.getElementById('modal-preco').textContent = p.preco;
 
+    const esgotada = Boolean(p.indisponivel);
+
     // A nota so aparece quando existe: caixa vazia empurraria o botao pra
-    // baixo sem dizer nada.
+    // baixo sem dizer nada. Peca esgotada sempre tem a sua.
     const nota = document.getElementById('modal-nota');
-    nota.textContent = p.nota || '';
-    nota.hidden = !p.nota;
+    const textoNota = esgotada
+      ? 'Esta peça está indisponível no momento. Se gostou, avise a loja pelo WhatsApp.'
+      : p.nota || '';
+    nota.textContent = textoNota;
+    nota.hidden = !textoNota;
+
+    /* Esgotada nao tem tamanho a escolher nem provador pra onde ir: o grupo de
+       tamanhos some e o botao dourado vira um link pro WhatsApp. */
+    document.getElementById('modal-tamanhos-grupo').hidden = esgotada;
+    document.getElementById('modal-add').hidden = esgotada;
+    const interesse = document.getElementById('modal-interesse');
+    interesse.hidden = !esgotada;
+    if (esgotada) interesse.href = linkInteresse(p);
 
     montarTamanhos();
     atualizarBotaoAdd();
     dlg.showModal();
     // O scroll do fundo trava por CSS (body:has(.modal[open])), nao daqui.
+  }
+
+  // A mensagem ja chega dizendo qual peca e que ela aparece esgotada: a loja
+  // responde sem ter que perguntar "qual?".
+  function linkInteresse(p) {
+    const msg =
+      `Olá, vim do site e tenho interesse na peça ${p.nome} (${p.preco}), ` +
+      'que aparece como indisponível.';
+    return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
   }
 
   function escolherTamanho(t, opcoes) {
@@ -409,13 +442,20 @@ const Peca = (function () {
       if (e.target === dlg) dlg.close();
     });
     document.getElementById('modal-add').addEventListener('click', levarAoProvador);
+    // Quantas clientes pedem peca esgotada e qual: e o dado que diz a loja o
+    // que vale repor. generate_lead e o nome padrao do GA4 pra contato iniciado.
+    document.getElementById('modal-interesse').addEventListener('click', () => {
+      if (pecaAberta) {
+        Medir.evento('generate_lead', { item_id: pecaAberta.slug, item_name: pecaAberta.nome });
+      }
+    });
     document.getElementById('modal-ampliar').addEventListener('click', verInteira);
   }
 
   /* ── Levar ao provador ──────────────────────────────────── */
 
   function levarAoProvador() {
-    if (!pecaAberta || !tamanhoEscolhido) return;
+    if (!pecaAberta || !tamanhoEscolhido || pecaAberta.indisponivel) return;
 
     /* Copia antes de qualquer coisa: fechar o modal nao zera estas variaveis,
        mas abrir outra peca zera — e a confirmacao roda depois do voo, meio
